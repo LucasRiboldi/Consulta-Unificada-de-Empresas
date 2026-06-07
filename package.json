@@ -1,0 +1,28 @@
+{
+  "name": "licitcheck",
+  "version": "0.1.0",
+  "description": "Consulta unificada de empresas por CNPJ para processos licitatórios — extensão Chrome MV3, 100% local.",
+  "type": "module",
+  "license": "MIT",
+  "author": "Lucas Floriano Riboldi",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LucasRiboldi/Consulta-Unificada-de-Empresas.git"
+  },
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/chrome": "^0.1.43",
+    "@types/node": "^25.9.2",
+    "@vitest/coverage-v8": "^2.1.8",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "dependencies": {
+    "zod": "^3.24.1"
+  }
+}

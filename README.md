@@ -1,51 +1,165 @@
-# LicitCheck
+# 🔎 LicitCheck
 
-> Consulta unificada de empresas por CNPJ para instrução de processos licitatórios.
-> Extensão Chrome (Manifest V3), **100% local**, open source (MIT).
+### Verifique a "ficha limpa" de uma empresa em segundos — direto no seu navegador.
 
-[![CodeQL](https://img.shields.io/badge/CodeQL-enabled-success)](#)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+O LicitCheck é uma extensão gratuita para o Google Chrome feita para quem trabalha com
+**licitações e contratações públicas**. Em vez de você abrir vários sites do governo, um por
+um, para checar se uma empresa pode ou não participar de uma licitação, a extensão faz **todas
+essas consultas de uma vez** e te entrega um **relatório pronto em PDF**.
 
-## O que é
+> Pense nela como um “detector de pendências”: você digita o CNPJ da empresa e ela responde,
+> em poucos segundos, se há alguma punição que impeça essa empresa de contratar com o poder
+> público.
 
-Ferramenta para **pregoeiros, agentes de contratação e servidores públicos** consultarem a
-empresa licitante **e seu sócio majoritário** (art. 12 da Lei 8.429/92) em fontes oficiais,
-gerando **relatórios PDF** para instruir processos licitatórios.
+---
 
-- 🔒 **Privacidade total** — nenhum dado sai do seu dispositivo. Sem backend, sem telemetria.
-- 🔑 **BYOK** — chave de API opcional, só para a consulta por CPF do sócio (a fonte primária é keyless).
-- 📄 **PDF profissional** — razão social, CNPJ, sócio majoritário, data/hora e resultados.
-- 🌓 Tema claro/escuro, acessibilidade WCAG AA.
+## 😩 O problema que ela resolve
 
-## Fontes consultadas
+Hoje, para conferir se uma empresa está apta a participar de uma licitação, é preciso visitar
+**vários sites diferentes do governo**, fazer a mesma busca em cada um e juntar os resultados
+na mão. Isso é demorado, cansativo e fácil de errar.
 
-| Fonte                                                | Tipo                              | Status                       |
-| ---------------------------------------------------- | --------------------------------- | ---------------------------- |
-| Receita Federal (CNPJ + QSA) via BrasilAPI           | Pública                           | ✅                           |
-| **TCU Consulta Consolidada** (CEIS+CNEP+TCU+CNJ)     | Pública, sem chave                | ✅ Fonte primária de sanções |
-| CEIS/CNEP por CPF do sócio (Portal da Transparência) | Chave do usuário                  | ✅                           |
-| SICAF (habilitação + sócios)                         | Leitura da sua sessão autenticada | ⚠️ Sob feature flag          |
+O LicitCheck junta tudo isso em **um único lugar**:
 
-> A integração SICAF lê **apenas dados já exibidos** após você se autenticar no site oficial.
-> A extensão **nunca** acessa sua senha ou credenciais gov.br. Trata **nome e CPF de sócios**
-> (PII) com minimização e mascaramento — ver [docs/PRIVACY.md](docs/PRIVACY.md).
+```
+  ANTES                                  COM O LICITCHECK
 
-## Documentação de projeto
+  🌐 Abrir site 1 → buscar               ⌨️  Digitar o CNPJ uma vez
+  🌐 Abrir site 2 → buscar          ➜    ⚡  A extensão consulta tudo
+  🌐 Abrir site 3 → buscar               📄  Você recebe um PDF pronto
+  📋 Juntar tudo na mão
+```
 
-- [Arquitetura e ADRs](docs/ARCHITECTURE.md)
-- [Matriz de integrações (Fase 1)](docs/INTEGRATIONS_MATRIX.md)
-- [Threat Model (Fase 2)](docs/THREAT_MODEL.md)
+---
+
+## ✨ O que ela faz por você
+
+- ⌨️ **Você digita só o CNPJ** da empresa (aquele número com 14 dígitos).
+- ⚡ **Ela consulta várias listas oficiais ao mesmo tempo** e mostra o resultado na hora.
+- 🚦 **Mostra um sinal claro:** “sem pendências” (verde) ou “pendência encontrada” (vermelho).
+- 📄 **Gera um relatório em PDF** com tudo organizado, pronto para anexar ao processo.
+- 🕓 **Guarda um histórico** das suas últimas consultas, para você reencontrar com facilidade.
+- 🖱️ **Atalho rápido:** selecione um CNPJ em qualquer página, clique com o botão direito e
+  escolha **“Consultar empresa”**.
+
+---
+
+## 🧭 Como funciona, na prática
+
+1. **Abra a extensão** clicando no ícone do LicitCheck no canto do navegador.
+2. **Digite o CNPJ** da empresa que você quer verificar.
+3. **Clique em “Consultar”** e aguarde alguns segundos.
+4. **Leia o resultado** na tela e, se quiser, clique em **“Exportar PDF”** para salvar o
+   relatório.
+
+Pronto. Sem planilhas, sem copiar e colar de site em site.
+
+---
+
+## 📋 O que aparece no relatório
+
+- **Nome da empresa** (razão social) e **CNPJ**.
+- **Data e hora** em que a consulta foi feita.
+- **Situação geral:** se há ou não pendências que impeçam a contratação.
+- **Resultado de cada lista oficial** consultada.
+- **Dados do sócio majoritário** (quando informado) — veja a explicação abaixo.
+
+O nome do arquivo já vem organizado, por exemplo:
+`NOME_DA_EMPRESA_2026-06-08_14-30.pdf`.
+
+---
+
+## 🗂️ Quais listas oficiais ela consulta
+
+São cadastros públicos do governo que registram empresas (e pessoas) impedidas de contratar
+com a administração pública:
+
+| Lista               | O que ela mostra, em palavras simples                                  |
+| ------------------- | ---------------------------------------------------------------------- |
+| **Receita Federal** | Os dados cadastrais da empresa: nome, situação e quem são os sócios.   |
+| **CEIS**            | Empresas consideradas “inidôneas” ou suspensas de licitar.             |
+| **CNEP**            | Empresas que receberam punições (por exemplo, pela Lei Anticorrupção). |
+| **TCU**             | Lista de impedidos mantida pelo Tribunal de Contas da União.           |
+| **CNJ**             | Condenações por improbidade administrativa registradas pela Justiça.   |
+
+> 💡 A boa notícia: as quatro listas de punições (CEIS, CNEP, TCU e CNJ) são consultadas de
+> uma só vez, por uma fonte oficial que já reúne todas elas — e **sem precisar de cadastro**.
+
+---
+
+## 👤 E o sócio majoritário?
+
+A lei exige que, em muitos casos, a verificação seja feita **também em nome do sócio
+majoritário** da empresa — não só da empresa em si.
+
+O LicitCheck ajuda a identificar quem é esse sócio e permite verificar o nome dele nas listas
+de punições. Para essa checagem específica (por CPF), pode ser necessário um **cadastro
+gratuito** no Portal da Transparência, feito uma única vez nas configurações da extensão.
+
+> Quando o sistema não tem certeza de quem é o sócio majoritário, ele **avisa você para
+> confirmar manualmente** — nada é decidido “às escondidas”.
+
+---
+
+## 🔐 Suas informações ficam só com você
+
+Essa é uma promessa central do LicitCheck:
+
+- ✅ **Nada do que você consulta sai do seu computador.** Não existe servidor nosso recebendo
+  seus dados.
+- ✅ **Nenhuma cobrança, nenhum rastreamento, nenhuma propaganda.**
+- ✅ A extensão **nunca pede nem guarda sua senha** de sites do governo.
+- ✅ Dados sensíveis, como o CPF de um sócio, aparecem **parcialmente ocultos** na tela
+  (por exemplo: `***.444.777-**`).
+- ✅ Você pode **apagar todo o histórico** quando quiser, com um clique.
+
+Em resumo: a ferramenta trabalha **dentro do seu navegador**, como uma calculadora — ela faz
+as contas para você, mas não manda nada para lugar nenhum.
+
+---
+
+## 💰 Quanto custa
+
+**Nada.** O LicitCheck é gratuito e de **código aberto** (qualquer pessoa pode inspecionar
+como ele funciona). Isso significa transparência total sobre o que a ferramenta faz com os
+seus dados — que é, justamente, mantê-los com você.
+
+---
+
+## 🚀 Como instalar
+
+A extensão está em fase final de preparação para publicação na **Chrome Web Store**. Assim que
+estiver disponível, bastará clicar em **“Adicionar ao Chrome”** — sem instalação complicada.
+
+> Enquanto isso, desenvolvedores e testadores podem rodar a versão de desenvolvimento
+> (veja a seção técnica abaixo).
+
+---
+
+## ❓ Perguntas frequentes
+
+**Preciso saber mexer com computador para usar?**
+Não. Se você sabe abrir um site e digitar um número, sabe usar o LicitCheck.
+
+**Funciona offline?**
+A interface é local, mas a consulta em si precisa de internet para falar com os sites oficiais.
+
+**A extensão decide se a empresa pode ou não participar da licitação?**
+Não. Ela **reúne as informações oficiais** para te ajudar a decidir. A análise final é sempre
+da pessoa responsável pelo processo.
+
+**Meus dados são vendidos ou compartilhados?**
+Nunca. Não há servidor nosso, não há coleta, não há propaganda.
+
+---
+
+## 👩‍💻 Para desenvolvedores
+
+Documentação técnica, decisões de arquitetura, modelo de segurança e instruções de build:
+
+- [Como contribuir](CONTRIBUTING.md)
+- [Política de Segurança](SECURITY.md)
 - [Política de Privacidade](docs/PRIVACY.md)
+- [Arquitetura](docs/ARCHITECTURE.md) · [Matriz de integrações](docs/INTEGRATIONS_MATRIX.md) · [Modelo de ameaças](docs/THREAT_MODEL.md)
 
-## Stack
-
-React 19 · TypeScript · Vite · Tailwind · Shadcn UI · Zod · Zustand · pdf-lib · Dexie · Vitest · Playwright
-
-## Status
-
-🚧 Em desenvolvimento — Fases 1–4 (viabilidade, threat model, arquitetura, estrutura) concluídas.
-Implementação (Fase 5) a seguir.
-
-## Licença
-
-MIT — ver [LICENSE](LICENSE).
+Projeto open source sob licença [MIT](LICENSE).

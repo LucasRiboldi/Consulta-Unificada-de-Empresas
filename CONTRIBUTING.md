@@ -46,6 +46,22 @@ compactação").
 2. Garanta `lint`, `typecheck`, `test` e `build` verdes (o CI valida).
 3. Descreva a mudança e referencie issues. PRs pequenas e focadas.
 
+## Publicação na Chrome Web Store
+
+```bash
+npm run package   # roda o build e gera release/licitcheck-v<versão>.zip
+```
+
+Checklist antes de enviar:
+
+- [ ] `npm run lint`, `npm run typecheck`, `npm run test:coverage` e `npm run build` verdes.
+- [ ] Versão atualizada em `package.json` (reflete no `manifest.json`).
+- [ ] `CHANGELOG.md` atualizado.
+- [ ] Revisar permissões e a justificativa de cada uma (campo da Web Store).
+- [ ] Política de privacidade publicada (link de `docs/PRIVACY.md`).
+- [ ] Capturas de tela do popup e da tela de configurações.
+- [ ] Enviar `release/licitcheck-v<versão>.zip` no Developer Dashboard.
+
 ## Arquitetura
 
 Veja [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md), [`docs/THREAT_MODEL.md`](docs/THREAT_MODEL.md)

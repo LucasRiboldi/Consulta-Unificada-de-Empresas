@@ -73,6 +73,14 @@ describe('PopupApp', () => {
     expect(sendMessage).not.toHaveBeenCalled();
   });
 
+  test('o erro é anunciável por leitores de tela (role=alert)', () => {
+    const { api } = messenger();
+    render(<PopupApp messenger={api} />);
+    fireEvent.change(screen.getByLabelText(/CNPJ/i), { target: { value: '123' } });
+    fireEvent.click(screen.getByRole('button', { name: /consultar/i }));
+    expect(screen.getByRole('alert')).toHaveTextContent(/CNPJ inválido/i);
+  });
+
   test('queries and renders the result for a valid CNPJ', async () => {
     const { api, sendMessage } = messenger();
     render(<PopupApp messenger={api} />);

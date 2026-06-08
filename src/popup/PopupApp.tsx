@@ -78,10 +78,10 @@ export function PopupApp({ messenger, initialCnpj = '', historico, onExportarPdf
   }
 
   return (
-    <main className="w-[380px] space-y-4 p-4 text-slate-900">
+    <main className="w-[380px] space-y-4 bg-white p-4 text-slate-900 dark:bg-slate-900 dark:text-slate-100">
       <header className="flex items-center justify-between">
         <h1 className="text-lg font-bold">LicitCheck</h1>
-        <span className="text-xs text-slate-500">Consulta unificada</span>
+        <span className="text-xs text-slate-500 dark:text-slate-400">Consulta unificada</span>
       </header>
 
       <form
@@ -101,6 +101,8 @@ export function PopupApp({ messenger, initialCnpj = '', historico, onExportarPdf
             onChange={(e) => setCnpj(e.target.value)}
             placeholder="00.000.000/0001-91"
             autoComplete="off"
+            inputMode="numeric"
+            aria-invalid={erro === 'CNPJ inválido.'}
           />
         </div>
         <div className="space-y-1">
@@ -120,10 +122,20 @@ export function PopupApp({ messenger, initialCnpj = '', historico, onExportarPdf
         </Button>
       </form>
 
-      {erro && <p className="rounded-md bg-red-50 p-2 text-sm text-red-700">{erro}</p>}
+      {erro && (
+        <p
+          role="alert"
+          className="rounded-md bg-red-50 p-2 text-sm text-red-700 dark:bg-red-950 dark:text-red-300"
+        >
+          {erro}
+        </p>
+      )}
 
       {view && (
-        <section className="space-y-3 border-t border-slate-200 pt-3">
+        <section
+          aria-live="polite"
+          className="space-y-3 border-t border-slate-200 pt-3 dark:border-slate-700"
+        >
           <div className="flex items-start justify-between gap-2">
             <div>
               <h2 className="font-semibold leading-tight">{view.titulo}</h2>

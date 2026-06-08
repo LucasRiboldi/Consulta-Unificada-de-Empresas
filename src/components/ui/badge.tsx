@@ -4,9 +4,9 @@ import { cn } from '@/lib/cn';
 type Tone = 'ok' | 'alerta' | 'neutro';
 
 const tones: Record<Tone, string> = {
-  ok: 'bg-green-100 text-green-800',
-  alerta: 'bg-red-100 text-red-800',
-  neutro: 'bg-slate-100 text-slate-700',
+  ok: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+  alerta: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+  neutro: 'bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200',
 };
 
 export function Badge({

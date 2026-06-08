@@ -35,7 +35,7 @@ export function OptionsApp({ deps }: { deps: OptionsDeps }) {
   }
 
   return (
-    <main className="mx-auto max-w-xl space-y-6 p-6 text-slate-900">
+    <main className="mx-auto min-h-screen max-w-xl space-y-6 bg-white p-6 text-slate-900 dark:bg-slate-900 dark:text-slate-100">
       <h1 className="text-xl font-bold">LicitCheck — Configurações</h1>
 
       <section className="space-y-2">
@@ -80,7 +80,11 @@ export function OptionsApp({ deps }: { deps: OptionsDeps }) {
         </Button>
       </div>
 
-      {feedback && <p className="text-sm text-green-700">{feedback}</p>}
+      {feedback && (
+        <p role="status" className="text-sm text-green-700 dark:text-green-400">
+          {feedback}
+        </p>
+      )}
     </main>
   );
 }

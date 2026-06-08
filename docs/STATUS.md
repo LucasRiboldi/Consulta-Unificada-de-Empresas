@@ -9,7 +9,7 @@ com a primeira fatia de implementação (spike de de-risking) **verde**.
 
 ### Verificado e funcionando
 
-- `npx tsc --noEmit` limpo; `npx vitest run` → **104/104 testes passando**; `npm run build` gera `dist/` carregável (popup + options + service worker + PDF).
+- `npx tsc --noEmit` limpo; `npx vitest run` → **106/106 testes passando** (cobertura ~94%); `npm run build` gera `dist/` carregável (popup + options + service worker + PDF).
 - Fonte primária de sanções (**TCU Consolidada**) validada **ao vivo** + provider com schema Zod.
 - Validação de CNPJ e CPF (dígito verificador) implementadas via TDD.
 - **Fatia 1 (BrasilAPI):** provider de cadastro PJ + QSA e heurística de sócio majoritário.
@@ -63,7 +63,8 @@ A BrasilAPI **mascara o CPF** do sócio (`***571038**`) e **não traz percentual
 - [ ] **R-A** (jurídico) para destravar a fatia 7 (SICAF).
 - [ ] Ícones reais (hoje placeholders em `public/icons`).
 - [ ] Testes E2E (Playwright) carregando a extensão no Chrome.
-- [ ] Acessibilidade WCAG AA (revisão) e tema escuro (Tailwind `darkMode: media` já ligado).
+- [~] Acessibilidade WCAG AA e tema escuro: 1ª passada feita (role=alert/status, aria-invalid,
+  aria-live, foco; variantes `dark:` no popup/options/componentes). Falta auditoria completa.
 - [ ] Anexar a certidão PDF oficial do TCU ao relatório (opcional).
 
 ## Riscos abertos

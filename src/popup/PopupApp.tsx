@@ -7,6 +7,7 @@ import { enviarConsulta, type RuntimeMessenger } from '@/features/consulta-cnpj/
 import { buildConsultaView, type ConsultaView, type FonteStatus } from '@/features/consulta-cnpj/view-model';
 import { HistoricoList, type HistoricoRepoView } from '@/features/historico/HistoricoList';
 import { toHistoricoEntry, type HistoricoEntry } from '@/storage/historico.repository';
+import type { ResultadoConsulta } from '@/services/consulta.service';
 
 interface PopupHistorico extends HistoricoRepoView {
   save: (entry: HistoricoEntry) => Promise<number>;
@@ -16,6 +17,7 @@ interface PopupAppProps {
   readonly messenger: RuntimeMessenger;
   readonly initialCnpj?: string;
   readonly historico?: PopupHistorico;
+  readonly onExportarPdf?: (resultado: ResultadoConsulta) => void | Promise<void>;
 }
 
 const statusLabel: Record<FonteStatus, string> = {
@@ -26,12 +28,13 @@ const statusLabel: Record<FonteStatus, string> = {
   na: 'Não consultado',
 };
 
-export function PopupApp({ messenger, initialCnpj = '', historico }: PopupAppProps) {
+export function PopupApp({ messenger, initialCnpj = '', historico, onExportarPdf }: PopupAppProps) {
   const [cnpj, setCnpj] = useState(initialCnpj);
   const [cpf, setCpf] = useState('');
   const [erro, setErro] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [view, setView] = useState<ConsultaView | null>(null);
+  const [resultado, setResultado] = useState<ResultadoConsulta | null>(null);
   const [reloadHistorico, setReloadHistorico] = useState(0);
 
   async function onConsultar(): Promise<void> {
@@ -51,16 +54,19 @@ export function PopupApp({ messenger, initialCnpj = '', historico }: PopupAppPro
       });
       if (res.ok) {
         setView(buildConsultaView(res.resultado));
+        setResultado(res.resultado);
         if (historico) {
           await historico.save(toHistoricoEntry(res.resultado));
           setReloadHistorico((k) => k + 1);
         }
       } else {
         setView(null);
+        setResultado(null);
         setErro(res.error);
       }
     } catch (e) {
       setView(null);
+      setResultado(null);
       setErro(e instanceof Error ? e.message : 'Erro inesperado.');
     } finally {
       setLoading(false);
@@ -121,6 +127,17 @@ export function PopupApp({ messenger, initialCnpj = '', historico }: PopupAppPro
             </div>
             <Badge tone={view.situacao === 'pendencia' ? 'alerta' : 'ok'}>{view.situacaoLabel}</Badge>
           </div>
+
+          {onExportarPdf && resultado && (
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full"
+              onClick={() => void onExportarPdf(resultado)}
+            >
+              Exportar PDF
+            </Button>
+          )}
 
           <ul className="space-y-1 text-sm">
             {view.fontes.map((f) => (

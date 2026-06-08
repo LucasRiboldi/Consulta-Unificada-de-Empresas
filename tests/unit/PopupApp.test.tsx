@@ -105,6 +105,18 @@ describe('PopupApp', () => {
     expect(historico.save.mock.calls[0]?.[0]?.razaoSocial).toBe('EMPRESA TESTE LTDA');
   });
 
+  test('exporta o PDF do resultado ao clicar em Exportar PDF', async () => {
+    const { api } = messenger();
+    const onExportarPdf = vi.fn();
+    render(<PopupApp messenger={api} onExportarPdf={onExportarPdf} />);
+    fireEvent.change(screen.getByLabelText(/CNPJ/i), { target: { value: '00000000000191' } });
+    fireEvent.click(screen.getByRole('button', { name: /consultar/i }));
+    const botao = await screen.findByRole('button', { name: /exportar pdf/i });
+    fireEvent.click(botao);
+    await waitFor(() => expect(onExportarPdf).toHaveBeenCalledOnce());
+    expect(onExportarPdf.mock.calls[0]?.[0]?.cnpjConsultado).toBe('00000000000191');
+  });
+
   test('renders a backend error message', async () => {
     const { api } = messenger({ ok: false, error: 'Falha na consulta.' });
     render(<PopupApp messenger={api} />);

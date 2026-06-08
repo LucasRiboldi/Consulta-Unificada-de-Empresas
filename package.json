@@ -19,10 +19,12 @@
     "@types/chrome": "^0.1.43",
     "@types/node": "^25.9.2",
     "@vitest/coverage-v8": "^2.1.8",
+    "fake-indexeddb": "^6.2.5",
     "typescript": "^5.7.2",
     "vitest": "^2.1.8"
   },
   "dependencies": {
+    "dexie": "^4.4.3",
     "zod": "^3.24.1"
   }
 }

@@ -50,6 +50,12 @@ relatório. Portal da Transparência (BYOK) fica como **complemento por CPF** e 
 o CPF é consultado em CEIS/CNEP via Portal da Transparência (BYOK). A TCU Consolidada cobre só
 PJ, por isso a consulta de PF do sócio depende da chave do usuário.
 
+**Verificado (2026-06-07):** a BrasilAPI **mascara o CPF** do sócio (`***571038**`) e **não
+expõe percentual de participação**. Consequências: (a) o QSA serve para **listar sócios e
+propor um candidato** (heurística por qualificação + confirmação manual — R-E), nunca para
+afirmar quem é o majoritário; (b) o **CPF completo** para a consulta de PF vem do **SICAF
+autenticado** ou de **entrada manual** do usuário — nunca da BrasilAPI.
+
 **Consequência (PII).** O sistema passa a tratar **nome e CPF de pessoa física** → ver
 ADR-008 e Threat Model (A6).
 

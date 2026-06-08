@@ -15,13 +15,13 @@ art. 12 da Lei 8.429/92), a ferramenta trata **dados pessoais de pessoas física
 **nome e CPF de sócios**, obtidos do quadro societário (QSA) da consulta de CNPJ e/ou da tela
 autenticada do SICAF.
 
-| Dado | Onde fica | Sai do dispositivo? |
-|------|-----------|---------------------|
-| CNPJs consultados | IndexedDB local | **Não** |
+| Dado                          | Onde fica                                 | Sai do dispositivo?                                                    |
+| ----------------------------- | ----------------------------------------- | ---------------------------------------------------------------------- |
+| CNPJs consultados             | IndexedDB local                           | **Não**                                                                |
 | Nome/CPF do sócio majoritário | IndexedDB local (CPF **mascarado** na UI) | **Não**, exceto o envio direto à fonte oficial para a própria consulta |
-| Histórico de consultas | IndexedDB local | **Não** |
-| PDFs gerados | Downloads do usuário | **Não** (só onde o usuário salvar) |
-| Chaves de API do usuário | `chrome.storage.local` | **Não** — usadas só na fonte dona da chave |
+| Histórico de consultas        | IndexedDB local                           | **Não**                                                                |
+| PDFs gerados                  | Downloads do usuário                      | **Não** (só onde o usuário salvar)                                     |
+| Chaves de API do usuário      | `chrome.storage.local`                    | **Não** — usadas só na fonte dona da chave                             |
 
 ### Minimização
 

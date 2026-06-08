@@ -1,5 +1,9 @@
 import { describe, test, expect, vi } from 'vitest';
-import { CONSULTAR_MENU_ID, setupContextMenu, type ContextMenuApi } from '@/background/context-menu';
+import {
+  CONSULTAR_MENU_ID,
+  setupContextMenu,
+  type ContextMenuApi,
+} from '@/background/context-menu';
 
 function fakeChrome() {
   let listener: ((info: { menuItemId: string; selectionText?: string }) => void) | undefined;
@@ -10,7 +14,11 @@ function fakeChrome() {
       onClicked: { addListener: (fn) => (listener = fn) },
     },
   };
-  return { api, create, fire: (info: { menuItemId: string; selectionText?: string }) => listener?.(info) };
+  return {
+    api,
+    create,
+    fire: (info: { menuItemId: string; selectionText?: string }) => listener?.(info),
+  };
 }
 
 describe('setupContextMenu', () => {

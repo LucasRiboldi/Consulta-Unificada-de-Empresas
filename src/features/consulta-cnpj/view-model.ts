@@ -34,7 +34,13 @@ export function buildConsultaView(r: ResultadoConsulta): ConsultaView {
 
   const socioRes = r.socioMajoritario.sancoesSocio;
   const transpStatus: FonteStatus =
-    socioRes === null ? 'na' : socioRes.ok ? (socioRes.data?.temSancao ? 'pendencia' : 'limpo') : 'erro';
+    socioRes === null
+      ? 'na'
+      : socioRes.ok
+        ? socioRes.data?.temSancao
+          ? 'pendencia'
+          : 'limpo'
+        : 'erro';
 
   const candidato = r.socioMajoritario.selecao.candidato;
   const cpf = r.socioMajoritario.cpfInformado;

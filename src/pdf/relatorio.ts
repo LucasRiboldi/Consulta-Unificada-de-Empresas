@@ -25,7 +25,10 @@ export async function gerarRelatorioPdf(resultado: ResultadoConsulta): Promise<U
   let page: PDFPage = doc.addPage(A4);
   let y = TOP;
 
-  const linha = (texto: string, opts: { size?: number; f?: PDFFont; cor?: ReturnType<typeof rgb> } = {}) => {
+  const linha = (
+    texto: string,
+    opts: { size?: number; f?: PDFFont; cor?: ReturnType<typeof rgb> } = {},
+  ) => {
     const size = opts.size ?? 11;
     if (y < MARGIN + size) {
       page = doc.addPage(A4);

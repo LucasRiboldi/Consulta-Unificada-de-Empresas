@@ -15,10 +15,24 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,html}": [
+      "prettier --write"
+    ]
   },
   "devDependencies": {
     "@crxjs/vite-plugin": "^2.4.0",
+    "@eslint/js": "^10.0.1",
     "@testing-library/dom": "^10.4.1",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
@@ -29,11 +43,19 @@
     "@vitejs/plugin-react": "^4.7.0",
     "@vitest/coverage-v8": "^2.1.8",
     "autoprefixer": "^10.5.0",
+    "eslint": "^10.4.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
     "fake-indexeddb": "^6.2.5",
+    "globals": "^17.6.0",
+    "husky": "^9.1.7",
     "jsdom": "^29.1.1",
+    "lint-staged": "^17.0.7",
     "postcss": "^8.5.15",
+    "prettier": "^3.8.3",
     "tailwindcss": "^3.4.19",
     "typescript": "^5.7.2",
+    "typescript-eslint": "^8.60.1",
     "vite": "^5.4.21",
     "vitest": "^2.1.8"
   },

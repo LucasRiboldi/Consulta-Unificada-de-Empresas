@@ -12,7 +12,12 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'html'],
       include: ['src/**/*.{ts,tsx}'],
-      exclude: ['src/**/*.test.{ts,tsx}', 'src/**/*.types.ts', 'src/**/main.tsx', 'src/background/service-worker.ts'],
+      exclude: [
+        'src/**/*.test.{ts,tsx}',
+        'src/**/*.types.ts',
+        'src/**/main.tsx',
+        'src/background/service-worker.ts',
+      ],
       thresholds: { lines: 80, functions: 80, branches: 80, statements: 80 },
     },
   },

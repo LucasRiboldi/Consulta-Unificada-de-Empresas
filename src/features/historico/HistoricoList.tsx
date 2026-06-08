@@ -8,7 +8,13 @@ export interface HistoricoRepoView {
   search: (query: string) => Promise<HistoricoEntry[]>;
 }
 
-export function HistoricoList({ repo, reloadKey = 0 }: { repo: HistoricoRepoView; reloadKey?: number }) {
+export function HistoricoList({
+  repo,
+  reloadKey = 0,
+}: {
+  repo: HistoricoRepoView;
+  reloadKey?: number;
+}) {
   const [query, setQuery] = useState('');
   const [itens, setItens] = useState<HistoricoEntry[]>([]);
 
@@ -21,6 +27,8 @@ export function HistoricoList({ repo, reloadKey = 0 }: { repo: HistoricoRepoView
   );
 
   useEffect(() => {
+    // Carga assíncrona do histórico (setState ocorre após await, não sincronamente).
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     void carregar(query);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reloadKey]);
@@ -59,7 +67,8 @@ export function HistoricoList({ repo, reloadKey = 0 }: { repo: HistoricoRepoView
               <div className="text-xs text-slate-500">{e.cnpj}</div>
               {e.socioMajoritarioCpfMascarado && (
                 <div className="text-xs text-slate-500">
-                  Sócio: {e.socioMajoritarioNome ?? '—'} (<span>{e.socioMajoritarioCpfMascarado}</span>)
+                  Sócio: {e.socioMajoritarioNome ?? '—'} (
+                  <span>{e.socioMajoritarioCpfMascarado}</span>)
                 </div>
               )}
             </li>

@@ -8,7 +8,11 @@ export default defineManifest({
   version: pkg.version,
   description:
     'Consulta unificada de empresas e do sócio majoritário (art. 12) para processos licitatórios. 100% local.',
-  icons: { 16: 'public/icons/icon-16.png', 48: 'public/icons/icon-48.png', 128: 'public/icons/icon-128.png' },
+  icons: {
+    16: 'public/icons/icon-16.png',
+    48: 'public/icons/icon-48.png',
+    128: 'public/icons/icon-128.png',
+  },
   action: {
     default_popup: 'src/popup/index.html',
     default_icon: { 16: 'public/icons/icon-16.png', 48: 'public/icons/icon-48.png' },

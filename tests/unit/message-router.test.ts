@@ -2,7 +2,10 @@ import { describe, test, expect, vi } from 'vitest';
 import { createMessageRouter } from '@/background/router';
 import type { ResultadoConsulta } from '@/services/consulta.service';
 
-const fakeResultado = { cnpjConsultado: '00000000000191', temPendencia: false } as ResultadoConsulta;
+const fakeResultado = {
+  cnpjConsultado: '00000000000191',
+  temPendencia: false,
+} as ResultadoConsulta;
 
 function build(consultarImpl?: (input: unknown) => Promise<ResultadoConsulta>) {
   const consultar = vi.fn(consultarImpl ?? (async () => fakeResultado));

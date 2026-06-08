@@ -44,7 +44,10 @@ export function createConsultaService(deps: ConsultaServiceDeps) {
         throw new Error('CNPJ inválido.');
       }
 
-      const baseCtx = { userKeys: input.userKeys, ...(input.signal ? { signal: input.signal } : {}) };
+      const baseCtx = {
+        userKeys: input.userKeys,
+        ...(input.signal ? { signal: input.signal } : {}),
+      };
       const ctxPj = { ...baseCtx, sujeito: { tipo: 'pj' as const, cnpj } };
 
       // Empresa: cadastro + sanções (paralelo).

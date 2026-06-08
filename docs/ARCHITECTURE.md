@@ -82,16 +82,15 @@ fino para orquestração/agregação; DI por construtor manual (sem container).
   "host_permissions": [
     "https://brasilapi.com.br/*",
     "https://certidoes-apf.apps.tcu.gov.br/*",
-    "https://api.portaldatransparencia.gov.br/*"
+    "https://api.portaldatransparencia.gov.br/*",
   ],
   "optional_permissions": ["scripting"],
   "optional_host_permissions": [
-    "https://*.comprasnet.gov.br/*"   // host do SICAF — confirmar na Fase 1
+    "https://*.comprasnet.gov.br/*", // host do SICAF — confirmar na Fase 1
   ],
   "content_security_policy": {
-    "extension_pages":
-      "script-src 'self'; object-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://brasilapi.com.br https://certidoes-apf.apps.tcu.gov.br https://api.portaldatransparencia.gov.br; base-uri 'none'; form-action 'none'"
-  }
+    "extension_pages": "script-src 'self'; object-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self' https://brasilapi.com.br https://certidoes-apf.apps.tcu.gov.br https://api.portaldatransparencia.gov.br; base-uri 'none'; form-action 'none'",
+  },
 }
 ```
 
@@ -128,8 +127,8 @@ UI (popup/options) ──msg tipada──▶ background (service worker)
 
 ## Riscos técnicos abertos (Fase 1)
 
-| ID | Risco | Ação |
-|----|-------|------|
-| R-A | Termos de uso do SICAF/Comprasnet vs. leitura de DOM | Revisão ToS antes de habilitar; feature flag desligada até lá |
-| R-C | Cotas/rate-limit do Portal da Transparência e TCU Consolidada | Cache local + rate-limit client-side |
-| R-E | Identificar corretamente o "sócio majoritário" pelo QSA (percentual nem sempre exposto) | Heurística + permitir seleção manual do sócio |
+| ID  | Risco                                                                                   | Ação                                                          |
+| --- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| R-A | Termos de uso do SICAF/Comprasnet vs. leitura de DOM                                    | Revisão ToS antes de habilitar; feature flag desligada até lá |
+| R-C | Cotas/rate-limit do Portal da Transparência e TCU Consolidada                           | Cache local + rate-limit client-side                          |
+| R-E | Identificar corretamente o "sócio majoritário" pelo QSA (percentual nem sempre exposto) | Heurística + permitir seleção manual do sócio                 |

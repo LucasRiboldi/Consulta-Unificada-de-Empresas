@@ -94,7 +94,12 @@ export function createTcuConsolidadaProvider(
 
         const parsed = RawSchema.safeParse(await res.json());
         if (!parsed.success) {
-          return { providerId: meta.id, ok: false, error: 'Resposta inválida da fonte.', fetchedAt };
+          return {
+            providerId: meta.id,
+            ok: false,
+            error: 'Resposta inválida da fonte.',
+            fetchedAt,
+          };
         }
 
         const raw = parsed.data;

@@ -29,27 +29,28 @@ do edital. Elimina o mock de CNJ e reduz drasticamente a dependência de chave d
 
 ## Matriz
 
-| Fonte | API oficial? | Autenticação | Permissão de uso | Acesso | Decisão MVP | Observações |
-|-------|--------------|--------------|------------------|--------|-------------|-------------|
-| **Receita — CNPJ** | BrasilAPI `/cnpj/v1/{cnpj}` (não-oficial aberta) | Nenhuma | Aberto | fetch direto | ✅ **Cliente direto** | Razão social, nome fantasia, situação, **QSA (sócios — PII)**. Identifica o sócio majoritário. |
-| **TCU Consolidada (PJ)** | `certidoes-apf.apps.tcu.gov.br/api/rest/publico/certidoes/{cnpj}` (oficial) | **Nenhuma** ✓ verificado | Aberto | fetch direto | ✅ **Fonte primária de sanções** | Consolida CEIS+CNEP+TCU+CNJ. Atende 6.1.2/6.1.4 e a Nota de substituição. |
-| **Portal da Transparência — CEIS/CNEP** | API oficial | **Chave do usuário (BYOK)** | Aberto c/ cota | fetch direto | ✅ **Consulta por CPF do sócio majoritário** (art. 12) + fallback PJ | Aceita CPF de pessoa física sancionada. Cobre o requisito 6.2 que a Consolidada (só CNPJ) não cobre. |
-| **SICAF** | NÃO existe API pública | gov.br (login do usuário) | Scraping server-side proibido | content script | ⚠️ **Leitura de DOM da sessão autenticada** | Extrai dados de habilitação **+ sócios + CPF** exibidos na tela. Risco ToS aberto (R-A). Nunca capturar credenciais. Feature flag. |
-| **CNJ — improbidade** | — | — | — | — | ✅ **Coberto pela TCU Consolidada (CNIA)** | Deixa de ser mock. |
+| Fonte                                   | API oficial?                                                                | Autenticação                | Permissão de uso              | Acesso         | Decisão MVP                                                          | Observações                                                                                                                        |
+| --------------------------------------- | --------------------------------------------------------------------------- | --------------------------- | ----------------------------- | -------------- | -------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| **Receita — CNPJ**                      | BrasilAPI `/cnpj/v1/{cnpj}` (não-oficial aberta)                            | Nenhuma                     | Aberto                        | fetch direto   | ✅ **Cliente direto**                                                | Razão social, nome fantasia, situação, **QSA (sócios — PII)**. Identifica o sócio majoritário.                                     |
+| **TCU Consolidada (PJ)**                | `certidoes-apf.apps.tcu.gov.br/api/rest/publico/certidoes/{cnpj}` (oficial) | **Nenhuma** ✓ verificado    | Aberto                        | fetch direto   | ✅ **Fonte primária de sanções**                                     | Consolida CEIS+CNEP+TCU+CNJ. Atende 6.1.2/6.1.4 e a Nota de substituição.                                                          |
+| **Portal da Transparência — CEIS/CNEP** | API oficial                                                                 | **Chave do usuário (BYOK)** | Aberto c/ cota                | fetch direto   | ✅ **Consulta por CPF do sócio majoritário** (art. 12) + fallback PJ | Aceita CPF de pessoa física sancionada. Cobre o requisito 6.2 que a Consolidada (só CNPJ) não cobre.                               |
+| **SICAF**                               | NÃO existe API pública                                                      | gov.br (login do usuário)   | Scraping server-side proibido | content script | ⚠️ **Leitura de DOM da sessão autenticada**                          | Extrai dados de habilitação **+ sócios + CPF** exibidos na tela. Risco ToS aberto (R-A). Nunca capturar credenciais. Feature flag. |
+| **CNJ — improbidade**                   | —                                                                           | —                           | —                             | —              | ✅ **Coberto pela TCU Consolidada (CNIA)**                           | Deixa de ser mock.                                                                                                                 |
 
 ## Como cada requisito do edital é atendido
 
-| Item | Fonte na extensão |
-|------|-------------------|
-| 6.1.1 SICAF + habilitação | Content script SICAF (sessão do usuário) |
-| 6.1.2 CEIS | TCU Consolidada (PJ) + Portal Transparência (CPF do sócio) |
-| 6.1.3 CNEP | TCU Consolidada (PJ) + Portal Transparência (CPF do sócio) |
-| 6.1.4 TCU inidôneos | TCU Consolidada |
-| 6.2 Sócio majoritário | QSA da BrasilAPI/SICAF identifica o sócio → consulta CPF no Portal da Transparência |
+| Item                      | Fonte na extensão                                                                   |
+| ------------------------- | ----------------------------------------------------------------------------------- |
+| 6.1.1 SICAF + habilitação | Content script SICAF (sessão do usuário)                                            |
+| 6.1.2 CEIS                | TCU Consolidada (PJ) + Portal Transparência (CPF do sócio)                          |
+| 6.1.3 CNEP                | TCU Consolidada (PJ) + Portal Transparência (CPF do sócio)                          |
+| 6.1.4 TCU inidôneos       | TCU Consolidada                                                                     |
+| 6.2 Sócio majoritário     | QSA da BrasilAPI/SICAF identifica o sócio → consulta CPF no Portal da Transparência |
 
 ## Checklist por integração (Fase 1)
 
 Para cada fonte, antes de implementar:
+
 1. [x] API pública oficial? (TCU Consolidada: sim, verificado. BrasilAPI: sim.)
 2. [x] Autenticação (TCU Consolidada: nenhuma; Transparência: chave do usuário).
 3. [ ] Restrições legais / termos de uso (SICAF/Comprasnet — **R-A, validar**).

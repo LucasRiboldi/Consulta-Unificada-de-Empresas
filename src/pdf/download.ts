@@ -6,7 +6,8 @@ import type { ResultadoConsulta } from '@/services/consulta.service';
 export async function exportarRelatorioPdf(resultado: ResultadoConsulta): Promise<void> {
   const bytes = await gerarRelatorioPdf(resultado);
   const razao =
-    (resultado.cadastro.ok ? resultado.cadastro.data?.razaoSocial : undefined) ?? resultado.cnpjConsultado;
+    (resultado.cadastro.ok ? resultado.cadastro.data?.razaoSocial : undefined) ??
+    resultado.cnpjConsultado;
   const nome = buildNomeArquivo(razao, new Date(resultado.geradoEm));
 
   const blob = new Blob([bytes as BlobPart], { type: 'application/pdf' });

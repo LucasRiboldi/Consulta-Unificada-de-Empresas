@@ -88,7 +88,12 @@ describe('toHistoricoEntry', () => {
     },
     sancoesEmpresa: { providerId: 'tcu-consolidada', ok: false, fetchedAt: 'now', error: 'x' },
     socioMajoritario: {
-      selecao: { candidato: null, requerConfirmacaoManual: false, confianca: 'nenhuma', motivo: '' },
+      selecao: {
+        candidato: null,
+        requerConfirmacaoManual: false,
+        confianca: 'nenhuma',
+        motivo: '',
+      },
       cpfInformado: '11144477735',
       sancoesSocio: null,
     },

@@ -5,7 +5,9 @@ export interface ContextMenuApi {
   contextMenus: {
     create(props: { id: string; title: string; contexts: readonly string[] }): unknown;
     onClicked: {
-      addListener(cb: (info: { menuItemId: string | number; selectionText?: string }) => void): void;
+      addListener(
+        cb: (info: { menuItemId: string | number; selectionText?: string }) => void,
+      ): void;
     };
   };
 }

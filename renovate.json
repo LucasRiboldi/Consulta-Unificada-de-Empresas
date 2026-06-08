@@ -1,0 +1,14 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended", ":semanticCommits", ":dependencyDashboard"],
+  "labels": ["dependencies"],
+  "packageRules": [
+    {
+      "description": "Agrupa atualizações de patch/minor não-major numa PR semanal.",
+      "matchUpdateTypes": ["minor", "patch"],
+      "groupName": "non-major dependencies",
+      "schedule": ["before 6am on monday"]
+    }
+  ],
+  "vulnerabilityAlerts": { "labels": ["security"] }
+}

@@ -45,7 +45,12 @@ export function OptionsApp({ deps }: { deps: OptionsDeps }) {
         <Input id="key" value={key} onChange={(e) => setKey(e.target.value)} autoComplete="off" />
         <p className="text-xs text-slate-500">
           Opcional. A consulta de sanções da empresa não exige chave.{' '}
-          <a className="text-blue-700 underline" href={CADASTRO_URL} target="_blank" rel="noreferrer">
+          <a
+            className="text-blue-700 underline"
+            href={CADASTRO_URL}
+            target="_blank"
+            rel="noreferrer"
+          >
             Cadastrar chave gratuita
           </a>
           .

@@ -11,10 +11,38 @@ const PAYLOAD = {
   seCnpjEncontradoNaBaseTcu: true,
   dataHoraGeracaoInMillis: 1700000000000,
   certidoes: [
-    { tipo: 'Inidôneos', emissor: 'TCU', descricao: 'Licitantes Inidôneos', situacao: 'NADA_CONSTA', linkConsultaManual: 'https://x', observacao: null },
-    { tipo: 'CEIS', emissor: 'CGU', descricao: 'Empresas Inidôneas e Suspensas', situacao: 'NADA_CONSTA', linkConsultaManual: 'https://x', observacao: null },
-    { tipo: 'CNEP', emissor: 'CGU', descricao: 'Empresas Punidas', situacao: 'NADA_CONSTA', linkConsultaManual: 'https://x', observacao: null },
-    { tipo: 'Improbidade', emissor: 'CNJ', descricao: 'CNIA', situacao: 'NADA_CONSTA', linkConsultaManual: 'https://x', observacao: null },
+    {
+      tipo: 'Inidôneos',
+      emissor: 'TCU',
+      descricao: 'Licitantes Inidôneos',
+      situacao: 'NADA_CONSTA',
+      linkConsultaManual: 'https://x',
+      observacao: null,
+    },
+    {
+      tipo: 'CEIS',
+      emissor: 'CGU',
+      descricao: 'Empresas Inidôneas e Suspensas',
+      situacao: 'NADA_CONSTA',
+      linkConsultaManual: 'https://x',
+      observacao: null,
+    },
+    {
+      tipo: 'CNEP',
+      emissor: 'CGU',
+      descricao: 'Empresas Punidas',
+      situacao: 'NADA_CONSTA',
+      linkConsultaManual: 'https://x',
+      observacao: null,
+    },
+    {
+      tipo: 'Improbidade',
+      emissor: 'CNJ',
+      descricao: 'CNIA',
+      situacao: 'NADA_CONSTA',
+      linkConsultaManual: 'https://x',
+      observacao: null,
+    },
   ],
 };
 

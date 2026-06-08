@@ -4,7 +4,11 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { isValidCnpj, normalizeCnpj } from '@/shared/utils/cnpj';
 import { enviarConsulta, type RuntimeMessenger } from '@/features/consulta-cnpj/consulta-client';
-import { buildConsultaView, type ConsultaView, type FonteStatus } from '@/features/consulta-cnpj/view-model';
+import {
+  buildConsultaView,
+  type ConsultaView,
+  type FonteStatus,
+} from '@/features/consulta-cnpj/view-model';
 import { HistoricoList, type HistoricoRepoView } from '@/features/historico/HistoricoList';
 import { toHistoricoEntry, type HistoricoEntry } from '@/storage/historico.repository';
 import type { ResultadoConsulta } from '@/services/consulta.service';
@@ -125,7 +129,9 @@ export function PopupApp({ messenger, initialCnpj = '', historico, onExportarPdf
               <h2 className="font-semibold leading-tight">{view.titulo}</h2>
               <p className="text-xs text-slate-500">{view.cnpj}</p>
             </div>
-            <Badge tone={view.situacao === 'pendencia' ? 'alerta' : 'ok'}>{view.situacaoLabel}</Badge>
+            <Badge tone={view.situacao === 'pendencia' ? 'alerta' : 'ok'}>
+              {view.situacaoLabel}
+            </Badge>
           </div>
 
           {onExportarPdf && resultado && (
@@ -152,9 +158,13 @@ export function PopupApp({ messenger, initialCnpj = '', historico, onExportarPdf
             <div className="rounded-md bg-slate-50 p-2 text-sm">
               <p className="font-medium">Sócio majoritário</p>
               <p>{view.socio.nome ?? '—'}</p>
-              {view.socio.cpfMascarado && <p className="text-slate-500">{view.socio.cpfMascarado}</p>}
+              {view.socio.cpfMascarado && (
+                <p className="text-slate-500">{view.socio.cpfMascarado}</p>
+              )}
               {view.socio.confirmar && (
-                <p className="mt-1 text-xs text-amber-700">Confirme o sócio majoritário manualmente.</p>
+                <p className="mt-1 text-xs text-amber-700">
+                  Confirme o sócio majoritário manualmente.
+                </p>
               )}
             </div>
           )}

@@ -19,12 +19,12 @@ gerando **relatórios PDF** para instruir processos licitatórios.
 
 ## Fontes consultadas
 
-| Fonte | Tipo | Status |
-|-------|------|--------|
-| Receita Federal (CNPJ + QSA) via BrasilAPI | Pública | ✅ |
-| **TCU Consulta Consolidada** (CEIS+CNEP+TCU+CNJ) | Pública, sem chave | ✅ Fonte primária de sanções |
-| CEIS/CNEP por CPF do sócio (Portal da Transparência) | Chave do usuário | ✅ |
-| SICAF (habilitação + sócios) | Leitura da sua sessão autenticada | ⚠️ Sob feature flag |
+| Fonte                                                | Tipo                              | Status                       |
+| ---------------------------------------------------- | --------------------------------- | ---------------------------- |
+| Receita Federal (CNPJ + QSA) via BrasilAPI           | Pública                           | ✅                           |
+| **TCU Consulta Consolidada** (CEIS+CNEP+TCU+CNJ)     | Pública, sem chave                | ✅ Fonte primária de sanções |
+| CEIS/CNEP por CPF do sócio (Portal da Transparência) | Chave do usuário                  | ✅                           |
+| SICAF (habilitação + sócios)                         | Leitura da sua sessão autenticada | ⚠️ Sob feature flag          |
 
 > A integração SICAF lê **apenas dados já exibidos** após você se autenticar no site oficial.
 > A extensão **nunca** acessa sua senha ou credenciais gov.br. Trata **nome e CPF de sócios**

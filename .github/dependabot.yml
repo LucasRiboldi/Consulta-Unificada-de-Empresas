@@ -1,0 +1,9 @@
+# Dependabot cuida das GitHub Actions; as dependências npm ficam com o Renovate
+# (renovate.json) para evitar PRs duplicados. Use apenas um dos dois para npm.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: '/'
+    schedule:
+      interval: weekly
+    labels: ['dependencies', 'github-actions']

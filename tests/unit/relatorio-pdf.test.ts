@@ -37,7 +37,12 @@ function resultado(over: Partial<ResultadoConsulta> = {}): ResultadoConsulta {
       },
     },
     socioMajoritario: {
-      selecao: { candidato: null, requerConfirmacaoManual: false, confianca: 'nenhuma', motivo: '' },
+      selecao: {
+        candidato: null,
+        requerConfirmacaoManual: false,
+        confianca: 'nenhuma',
+        motivo: '',
+      },
       cpfInformado: null,
       sancoesSocio: null,
     },
@@ -83,13 +88,23 @@ describe('gerarRelatorioPdf', () => {
       resultado({
         socioMajoritario: {
           selecao: {
-            candidato: { nome: 'FULANO', qualificacao: 'Sócio', cpfMascarado: '', dataEntradaSociedade: null },
+            candidato: {
+              nome: 'FULANO',
+              qualificacao: 'Sócio',
+              cpfMascarado: '',
+              dataEntradaSociedade: null,
+            },
             requerConfirmacaoManual: false,
             confianca: 'alta',
             motivo: '',
           },
           cpfInformado: '11144477735',
-          sancoesSocio: { providerId: 'transparencia', ok: true, fetchedAt: 'now', data: { codigoConsultado: 'x', temSancao: false, ceis: [], cnep: [] } },
+          sancoesSocio: {
+            providerId: 'transparencia',
+            ok: true,
+            fetchedAt: 'now',
+            data: { codigoConsultado: 'x', temSancao: false, ceis: [], cnep: [] },
+          },
         },
       }),
     );

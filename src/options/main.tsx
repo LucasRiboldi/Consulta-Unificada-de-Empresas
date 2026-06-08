@@ -1,7 +1,12 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { OptionsApp, type OptionsDeps } from './OptionsApp';
-import { loadUserKeys, saveUserKey, getRetencaoDias, saveRetencaoDias } from '@/storage/settings.store';
+import {
+  loadUserKeys,
+  saveUserKey,
+  getRetencaoDias,
+  saveRetencaoDias,
+} from '@/storage/settings.store';
 import { createHistoricoRepository } from '@/storage/historico.repository';
 import '@/index.css';
 

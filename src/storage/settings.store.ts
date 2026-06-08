@@ -33,3 +33,7 @@ export async function getRetencaoDias(fallback = 180): Promise<number> {
   const out = await chrome.storage.local.get(RETENCAO_DIAS);
   return (out[RETENCAO_DIAS] as number | undefined) ?? fallback;
 }
+
+export async function saveRetencaoDias(dias: number): Promise<void> {
+  await chrome.storage.local.set({ [RETENCAO_DIAS]: dias });
+}

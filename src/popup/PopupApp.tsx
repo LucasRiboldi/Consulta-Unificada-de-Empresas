@@ -5,10 +5,17 @@ import { Badge } from '@/components/ui/badge';
 import { isValidCnpj, normalizeCnpj } from '@/shared/utils/cnpj';
 import { enviarConsulta, type RuntimeMessenger } from '@/features/consulta-cnpj/consulta-client';
 import { buildConsultaView, type ConsultaView, type FonteStatus } from '@/features/consulta-cnpj/view-model';
+import { HistoricoList, type HistoricoRepoView } from '@/features/historico/HistoricoList';
+import { toHistoricoEntry, type HistoricoEntry } from '@/storage/historico.repository';
+
+interface PopupHistorico extends HistoricoRepoView {
+  save: (entry: HistoricoEntry) => Promise<number>;
+}
 
 interface PopupAppProps {
   readonly messenger: RuntimeMessenger;
   readonly initialCnpj?: string;
+  readonly historico?: PopupHistorico;
 }
 
 const statusLabel: Record<FonteStatus, string> = {
@@ -19,12 +26,13 @@ const statusLabel: Record<FonteStatus, string> = {
   na: 'Não consultado',
 };
 
-export function PopupApp({ messenger, initialCnpj = '' }: PopupAppProps) {
+export function PopupApp({ messenger, initialCnpj = '', historico }: PopupAppProps) {
   const [cnpj, setCnpj] = useState(initialCnpj);
   const [cpf, setCpf] = useState('');
   const [erro, setErro] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [view, setView] = useState<ConsultaView | null>(null);
+  const [reloadHistorico, setReloadHistorico] = useState(0);
 
   async function onConsultar(): Promise<void> {
     const digits = normalizeCnpj(cnpj);
@@ -43,6 +51,10 @@ export function PopupApp({ messenger, initialCnpj = '' }: PopupAppProps) {
       });
       if (res.ok) {
         setView(buildConsultaView(res.resultado));
+        if (historico) {
+          await historico.save(toHistoricoEntry(res.resultado));
+          setReloadHistorico((k) => k + 1);
+        }
       } else {
         setView(null);
         setErro(res.error);
@@ -139,6 +151,13 @@ export function PopupApp({ messenger, initialCnpj = '' }: PopupAppProps) {
               ))}
             </ul>
           )}
+        </section>
+      )}
+
+      {historico && (
+        <section className="border-t border-slate-200 pt-3">
+          <h2 className="mb-2 text-sm font-semibold">Histórico</h2>
+          <HistoricoList repo={historico} reloadKey={reloadHistorico} />
         </section>
       )}
     </main>

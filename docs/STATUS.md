@@ -8,7 +8,7 @@
 com a primeira fatia de implementação (spike de de-risking) **verde**.
 
 ### Verificado e funcionando
-- `npx tsc --noEmit` limpo; `npx vitest run` → **80/80 testes passando**; `npm run build` gera `dist/` carregável (popup React + CSS).
+- `npx tsc --noEmit` limpo; `npx vitest run` → **90/90 testes passando**; `npm run build` gera `dist/` carregável (popup + options + service worker).
 - Fonte primária de sanções (**TCU Consolidada**) validada **ao vivo** + provider com schema Zod.
 - Validação de CNPJ e CPF (dígito verificador) implementadas via TDD.
 - **Fatia 1 (BrasilAPI):** provider de cadastro PJ + QSA e heurística de sócio majoritário.
@@ -43,8 +43,9 @@ A BrasilAPI **mascara o CPF** do sócio (`***571038**`) e **não traz percentual
      service worker (roteador de mensagens + menu de contexto), build verificado. ✅
    - [x] **5b** — popup React (form CNPJ/CPF + validação + resultado + fontes + alertas). ✅
      view-model + cliente de mensagem (TDD) + `PopupApp` (Testing Library/jsdom). Tailwind v3.
-   - [ ] **5c** — options (chave BYOK, retenção, limpar histórico) + histórico no popup. **PRÓXIMA**
-6. [ ] PDF — `pdf-lib` sem HTML; anexar certidão oficial do TCU.
+   - [x] **5c** — options (chave BYOK, retenção, limpar histórico) + histórico no popup. ✅
+     settings.store testado; `OptionsApp` + `HistoricoList` (TDD); popup salva cada consulta.
+6. [ ] PDF — `pdf-lib` sem HTML; anexar certidão oficial do TCU. **PRÓXIMA**
 7. [ ] SICAF content script — **somente após resolver R-A (termos de uso do Comprasnet)**.
 8. [ ] CI (GitHub Actions, CodeQL, Dependabot/Renovate) + docs Fase 7 (SECURITY/CONTRIBUTING/etc.).
 

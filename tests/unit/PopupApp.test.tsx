@@ -5,6 +5,7 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { PopupApp } from '@/popup/PopupApp';
 import type { RuntimeMessenger } from '@/features/consulta-cnpj/consulta-client';
 import type { ResultadoConsulta } from '@/services/consulta.service';
+import type { HistoricoEntry } from '@/storage/historico.repository';
 
 const resultado: ResultadoConsulta = {
   cnpjConsultado: '00000000000191',
@@ -88,6 +89,20 @@ describe('PopupApp', () => {
     fireEvent.change(screen.getByLabelText(/CNPJ/i), { target: { value: '00000000000191' } });
     fireEvent.click(screen.getByRole('button', { name: /consultar/i }));
     await waitFor(() => expect(screen.getByText(/art\. ?12/i)).toBeInTheDocument());
+  });
+
+  test('saves the result to history on success', async () => {
+    const { api } = messenger();
+    const historico = {
+      save: vi.fn(async (_e: HistoricoEntry) => 1),
+      list: vi.fn(async () => [] as HistoricoEntry[]),
+      search: vi.fn(async () => [] as HistoricoEntry[]),
+    };
+    render(<PopupApp messenger={api} historico={historico} />);
+    fireEvent.change(screen.getByLabelText(/CNPJ/i), { target: { value: '00000000000191' } });
+    fireEvent.click(screen.getByRole('button', { name: /consultar/i }));
+    await waitFor(() => expect(historico.save).toHaveBeenCalledOnce());
+    expect(historico.save.mock.calls[0]?.[0]?.razaoSocial).toBe('EMPRESA TESTE LTDA');
   });
 
   test('renders a backend error message', async () => {

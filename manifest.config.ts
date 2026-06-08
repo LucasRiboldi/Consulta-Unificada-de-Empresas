@@ -13,6 +13,7 @@ export default defineManifest({
     default_popup: 'src/popup/index.html',
     default_icon: { 16: 'public/icons/icon-16.png', 48: 'public/icons/icon-48.png' },
   },
+  options_page: 'src/options/index.html',
   background: { service_worker: 'src/background/service-worker.ts', type: 'module' },
   permissions: ['contextMenus', 'storage', 'downloads'],
   host_permissions: [

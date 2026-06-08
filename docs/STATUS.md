@@ -8,7 +8,7 @@
 com a primeira fatia de implementação (spike de de-risking) **verde**.
 
 ### Verificado e funcionando
-- `npx tsc --noEmit` limpo; `npx vitest run` → **58/58 testes passando**.
+- `npx tsc --noEmit` limpo; `npx vitest run` → **67/67 testes passando**; `npm run build` gera `dist/` carregável.
 - Fonte primária de sanções (**TCU Consolidada**) validada **ao vivo** + provider com schema Zod.
 - Validação de CNPJ e CPF (dígito verificador) implementadas via TDD.
 - **Fatia 1 (BrasilAPI):** provider de cadastro PJ + QSA e heurística de sócio majoritário.
@@ -38,7 +38,11 @@ A BrasilAPI **mascara o CPF** do sócio (`***571038**`) e **não traz percentual
 2. [x] `transparencia.provider` — CEIS/CNEP por CPF/CNPJ (BYOK) + validação de CPF. ✅
 3. [x] `Aggregator`/Service — orquestra empresa (CNPJ) + sócio (CPF), resultado normalizado. ✅
 4. [x] Storage (Dexie) — histórico com CPF mascarado + retenção. ✅
-5. [ ] Build + UI — `manifest.config.ts` (Vite + CRXJS) + React popup/options (Tailwind/Shadcn). **PRÓXIMA**
+5. Build + UI (quebrada em sub-fatias):
+   - [x] **5a** — toolchain Vite+CRXJS, `manifest.config.ts` (CSP/permissões ADR-004),
+     service worker (roteador de mensagens + menu de contexto), build verificado. ✅
+   - [ ] **5b** — popup React (form CNPJ + resultado + alertas). **PRÓXIMA**
+   - [ ] **5c** — options (chave BYOK, retenção, limpar histórico) + histórico no popup.
 6. [ ] PDF — `pdf-lib` sem HTML; anexar certidão oficial do TCU.
 7. [ ] SICAF content script — **somente após resolver R-A (termos de uso do Comprasnet)**.
 8. [ ] CI (GitHub Actions, CodeQL, Dependabot/Renovate) + docs Fase 7 (SECURITY/CONTRIBUTING/etc.).

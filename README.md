@@ -158,6 +158,11 @@ da pessoa responsável pelo processo.
 **Meus dados são vendidos ou compartilhados?**
 Nunca. Não há servidor nosso, não há coleta, não há propaganda.
 
+**Como sei que a extensão funciona mesmo?**
+Além de mais de cem verificações automáticas no código, a extensão é **instalada e testada
+automaticamente num navegador de verdade** a cada mudança: um robô abre a extensão, digita um
+CNPJ, confere as mensagens na tela e testa a página de configurações — como um usuário faria.
+
 ---
 
 ## 👩‍💻 Para desenvolvedores

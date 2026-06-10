@@ -19,5 +19,8 @@ versionamento [SemVer](https://semver.org/lang/pt-BR/).
 - Documentação: arquitetura, threat model, matriz de integrações, política de privacidade.
 - Certidão oficial do TCU (PDF emitido pela Consulta Consolidada com `seEmitirPDF=true`)
   anexada às páginas finais do relatório exportado; falhas na emissão não impedem a exportação.
+- Testes E2E (Playwright) carregando a extensão MV3 num navegador real (canal Edge, headless):
+  registro do service worker, popup (formulário e validação de CNPJ) e options (persistência
+  em `chrome.storage`). Script `npm run test:e2e` (requer `npm run build` antes).
 
 [Não lançado]: https://github.com/LucasRiboldi/Consulta-Unificada-de-Empresas/commits/main

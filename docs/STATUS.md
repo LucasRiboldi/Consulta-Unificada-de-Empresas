@@ -64,7 +64,10 @@ A BrasilAPI **mascara o CPF** do sócio (`***571038**`) e **não traz percentual
 
 - [ ] **R-A** (jurídico) para destravar a fatia 7 (SICAF).
 - [ ] Ícones reais (hoje placeholders em `public/icons`).
-- [ ] Testes E2E (Playwright) carregando a extensão no Chrome.
+- [x] Testes E2E (Playwright) carregando a extensão num Chromium real. ✅ (2026-06-10)
+      `npm run test:e2e` (4 testes: SW, popup, validação, options). Canal **msedge**:
+      o Chrome de marca 137+ removeu `--load-extension` e o Chromium do Playwright
+      falha nesta máquina com erro SxS (configuração lado a lado).
 - [~] Acessibilidade WCAG AA e tema escuro: 1ª passada feita (role=alert/status, aria-invalid,
   aria-live, foco; variantes `dark:` no popup/options/componentes). Falta auditoria completa.
 - [x] Anexar a certidão PDF oficial do TCU ao relatório. ✅ (2026-06-10)
@@ -82,4 +85,5 @@ npm install
 npm test          # vitest run
 npm run typecheck # tsc --noEmit
 npm run test:coverage
+npm run build && npm run test:e2e   # E2E Playwright (extensão real, canal msedge)
 ```

@@ -10,6 +10,8 @@ release/
 # Test / coverage
 coverage/
 .vitest/
+test-results/
+playwright-report/
 
 # Logs
 *.log

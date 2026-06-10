@@ -38,6 +38,9 @@ O LicitCheck junta tudo isso em **um único lugar**:
 - ⚡ **Ela consulta várias listas oficiais ao mesmo tempo** e mostra o resultado na hora.
 - 🚦 **Mostra um sinal claro:** “sem pendências” (verde) ou “pendência encontrada” (vermelho).
 - 📄 **Gera um relatório em PDF** com tudo organizado, pronto para anexar ao processo.
+- 📎 **Inclui a certidão oficial do TCU dentro do PDF:** além do resumo feito pela extensão,
+  o arquivo traz, nas últimas páginas, o documento oficial emitido pelo próprio Tribunal de
+  Contas da União — o mesmo que você obteria entrando no site do TCU.
 - 🕓 **Guarda um histórico** das suas últimas consultas, para você reencontrar com facilidade.
 - 🖱️ **Atalho rápido:** selecione um CNPJ em qualquer página, clique com o botão direito e
   escolha **“Consultar empresa”**.
@@ -63,6 +66,10 @@ Pronto. Sem planilhas, sem copiar e colar de site em site.
 - **Situação geral:** se há ou não pendências que impeçam a contratação.
 - **Resultado de cada lista oficial** consultada.
 - **Dados do sócio majoritário** (quando informado) — veja a explicação abaixo.
+- **A certidão oficial do TCU em anexo**, nas páginas finais do mesmo PDF. Assim o processo
+  fica com o documento "de verdade", emitido pelo órgão, e não apenas com o nosso resumo.
+  Se o site do TCU estiver fora do ar na hora, o relatório é gerado normalmente, só sem o
+  anexo.
 
 O nome do arquivo já vem organizado, por exemplo:
 `NOME_DA_EMPRESA_2026-06-08_14-30.pdf`.

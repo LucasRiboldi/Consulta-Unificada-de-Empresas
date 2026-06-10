@@ -1,6 +1,6 @@
 # STATUS — Registro de continuação
 
-> Atualizado: 2026-06-07. Use este arquivo para retomar o projeto do ponto exato.
+> Atualizado: 2026-06-10. Use este arquivo para retomar o projeto do ponto exato.
 
 ## Onde estamos
 
@@ -9,7 +9,7 @@ com a primeira fatia de implementação (spike de de-risking) **verde**.
 
 ### Verificado e funcionando
 
-- `npx tsc --noEmit` limpo; `npx vitest run` → **106/106 testes passando** (cobertura ~94%); `npm run build` gera `dist/` carregável (popup + options + service worker + PDF).
+- `npx tsc --noEmit` limpo; `npx vitest run` → **112/112 testes passando** (cobertura ~94%); `npm run build` gera `dist/` carregável (popup + options + service worker + PDF).
 - Fonte primária de sanções (**TCU Consolidada**) validada **ao vivo** + provider com schema Zod.
 - Validação de CNPJ e CPF (dígito verificador) implementadas via TDD.
 - **Fatia 1 (BrasilAPI):** provider de cadastro PJ + QSA e heurística de sócio majoritário.
@@ -52,7 +52,9 @@ A BrasilAPI **mascara o CPF** do sócio (`***571038**`) e **não traz percentual
          settings.store testado; `OptionsApp` + `HistoricoList` (TDD); popup salva cada consulta.
 6. [x] PDF — `pdf-lib` desenhando campos (sem HTML, T-03); sanitização; nome
        `RAZAO_SOCIAL_YYYY-MM-DD_HH-MM.pdf`; botão Exportar PDF no popup. ✅
-       (Pendência menor: anexar a certidão PDF oficial do TCU — opcional, futuro.)
+       Certidão oficial do TCU anexada ao relatório (`fetchCertidaoPdfBase64` +
+       `anexarCertidaoOficial`; busca com `seEmitirPDF=true` na exportação; falha
+       na emissão nunca bloqueia o download). ✅
 7. [ ] SICAF content script — **somente após resolver R-A (termos de uso do Comprasnet)**. BLOQUEADA.
 8. [x] Qualidade + CI + docs Fase 7. ✅
        ESLint/Prettier/Husky/lint-staged; GitHub Actions (lint+format+typecheck+coverage+build);
@@ -65,7 +67,7 @@ A BrasilAPI **mascara o CPF** do sócio (`***571038**`) e **não traz percentual
 - [ ] Testes E2E (Playwright) carregando a extensão no Chrome.
 - [~] Acessibilidade WCAG AA e tema escuro: 1ª passada feita (role=alert/status, aria-invalid,
   aria-live, foco; variantes `dark:` no popup/options/componentes). Falta auditoria completa.
-- [ ] Anexar a certidão PDF oficial do TCU ao relatório (opcional).
+- [x] Anexar a certidão PDF oficial do TCU ao relatório. ✅ (2026-06-10)
 
 ## Riscos abertos
 

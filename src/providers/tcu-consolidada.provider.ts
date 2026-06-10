@@ -55,6 +55,25 @@ interface Deps {
   readonly fetch?: typeof fetch;
 }
 
+/**
+ * Busca a certidão oficial em PDF (base64) na Consulta Consolidada, pedindo a
+ * emissão com `seEmitirPDF=true`. Nunca lança: devolve `null` em qualquer falha.
+ */
+export async function fetchCertidaoPdfBase64(
+  cnpj: string,
+  deps: Deps = {},
+): Promise<string | null> {
+  const doFetch = deps.fetch ?? globalThis.fetch.bind(globalThis);
+  try {
+    const res = await doFetch(`${BASE_URL}/${normalizeCnpj(cnpj)}?seEmitirPDF=true`);
+    if (!res.ok) return null;
+    const parsed = RawSchema.safeParse(await res.json());
+    return parsed.success ? parsed.data.certidaoPDF : null;
+  } catch {
+    return null;
+  }
+}
+
 export function createTcuConsolidadaProvider(
   deps: Deps = {},
 ): ConsultaProvider<TcuConsolidadaData> {

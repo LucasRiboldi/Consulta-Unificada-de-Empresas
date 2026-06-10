@@ -17,5 +17,7 @@ versionamento [SemVer](https://semver.org/lang/pt-BR/).
 - Empacotamento Manifest V3 (Vite + CRXJS) com CSP estrita e menor privilégio.
 - Qualidade e CI: ESLint, Prettier, Husky, lint-staged, GitHub Actions, CodeQL, Dependabot, Renovate.
 - Documentação: arquitetura, threat model, matriz de integrações, política de privacidade.
+- Certidão oficial do TCU (PDF emitido pela Consulta Consolidada com `seEmitirPDF=true`)
+  anexada às páginas finais do relatório exportado; falhas na emissão não impedem a exportação.
 
 [Não lançado]: https://github.com/LucasRiboldi/Consulta-Unificada-de-Empresas/commits/main

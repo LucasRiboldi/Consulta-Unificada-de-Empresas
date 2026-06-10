@@ -82,3 +82,23 @@ export async function gerarRelatorioPdf(resultado: ResultadoConsulta): Promise<U
 
   return doc.save();
 }
+
+/**
+ * Anexa as páginas da certidão oficial do TCU (PDF em base64) ao final do
+ * relatório. Em qualquer falha (base64/PDF inválido) devolve o relatório
+ * original intacto — o anexo é melhoria, nunca pode impedir a exportação.
+ */
+export async function anexarCertidaoOficial(
+  relatorio: Uint8Array,
+  certidaoPdfBase64: string,
+): Promise<Uint8Array> {
+  try {
+    const destino = await PDFDocument.load(relatorio);
+    const certidao = await PDFDocument.load(certidaoPdfBase64);
+    const paginas = await destino.copyPages(certidao, certidao.getPageIndices());
+    for (const p of paginas) destino.addPage(p);
+    return await destino.save();
+  } catch {
+    return relatorio;
+  }
+}

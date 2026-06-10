@@ -1,5 +1,6 @@
 import { describe, test, expect } from 'vitest';
-import { gerarRelatorioPdf } from '@/pdf/relatorio';
+import { PDFDocument } from 'pdf-lib';
+import { anexarCertidaoOficial, gerarRelatorioPdf } from '@/pdf/relatorio';
 import type { ResultadoConsulta } from '@/services/consulta.service';
 
 function resultado(over: Partial<ResultadoConsulta> = {}): ResultadoConsulta {
@@ -110,5 +111,29 @@ describe('gerarRelatorioPdf', () => {
     );
     const texto = String.fromCharCode(...bytes);
     expect(texto).not.toContain('11144477735');
+  });
+});
+
+async function certidaoFakeBase64(paginas: number): Promise<string> {
+  const doc = await PDFDocument.create();
+  for (let i = 0; i < paginas; i++) doc.addPage([595, 842]);
+  return doc.saveAsBase64();
+}
+
+describe('anexarCertidaoOficial', () => {
+  test('acrescenta as páginas da certidão ao final do relatório', async () => {
+    const relatorio = await gerarRelatorioPdf(resultado());
+    const paginasRelatorio = (await PDFDocument.load(relatorio)).getPageCount();
+
+    const combinado = await anexarCertidaoOficial(relatorio, await certidaoFakeBase64(2));
+
+    const doc = await PDFDocument.load(combinado);
+    expect(doc.getPageCount()).toBe(paginasRelatorio + 2);
+  });
+
+  test('devolve o relatório original quando a certidão é inválida (sem lançar)', async () => {
+    const relatorio = await gerarRelatorioPdf(resultado());
+    const combinado = await anexarCertidaoOficial(relatorio, 'não-é-base64-de-pdf');
+    expect(combinado).toBe(relatorio);
   });
 });

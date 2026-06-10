@@ -51,11 +51,26 @@ describe('exportarRelatorioPdf', () => {
     const anchor = { href: '', download: '', click } as unknown as HTMLAnchorElement;
     const createElement = vi.spyOn(document, 'createElement').mockReturnValue(anchor);
 
-    await exportarRelatorioPdf(resultado());
+    await exportarRelatorioPdf(resultado(), { buscarCertidao: async () => null });
 
     expect(createElement).toHaveBeenCalledWith('a');
     expect(anchor.download).toMatch(/^EMPRESA_TESTE_LTDA_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}\.pdf$/);
     expect(anchor.href).toBe('blob:fake');
+    expect(click).toHaveBeenCalledOnce();
+    createElement.mockRestore();
+  });
+
+  test('busca a certidão oficial pelo CNPJ consultado e ainda exporta se a busca falhar', async () => {
+    const click = vi.fn();
+    const anchor = { href: '', download: '', click } as unknown as HTMLAnchorElement;
+    const createElement = vi.spyOn(document, 'createElement').mockReturnValue(anchor);
+    const buscarCertidao = vi.fn(async () => {
+      throw new Error('rede caiu');
+    });
+
+    await exportarRelatorioPdf(resultado(), { buscarCertidao });
+
+    expect(buscarCertidao).toHaveBeenCalledWith('00000000000191');
     expect(click).toHaveBeenCalledOnce();
     createElement.mockRestore();
   });

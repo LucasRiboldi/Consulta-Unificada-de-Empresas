@@ -44,6 +44,9 @@ O LicitCheck junta tudo isso em **um único lugar**:
 - 🕓 **Guarda um histórico** das suas últimas consultas, para você reencontrar com facilidade.
 - 🖱️ **Atalho rápido:** selecione um CNPJ em qualquer página, clique com o botão direito e
   escolha **“Consultar empresa”**.
+- ♿ **Acessível e confortável para os olhos:** funciona com leitores de tela, dá para usar
+  só com o teclado, e se o seu computador estiver no **modo escuro**, a extensão acompanha —
+  com cores verificadas automaticamente para garantir uma leitura confortável nos dois temas.
 
 ---
 

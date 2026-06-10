@@ -68,8 +68,11 @@ A BrasilAPI **mascara o CPF** do sócio (`***571038**`) e **não traz percentual
       `npm run test:e2e` (4 testes: SW, popup, validação, options). Canal **msedge**:
       o Chrome de marca 137+ removeu `--load-extension` e o Chromium do Playwright
       falha nesta máquina com erro SxS (configuração lado a lado).
-- [~] Acessibilidade WCAG AA e tema escuro: 1ª passada feita (role=alert/status, aria-invalid,
-  aria-live, foco; variantes `dark:` no popup/options/componentes). Falta auditoria completa.
+- [x] Acessibilidade WCAG AA e tema escuro. ✅ (2026-06-10) Auditoria automática
+      axe-core (`e2e/a11y.spec.ts`): popup (inclusive estado de erro) e options,
+      temas claro e escuro, **zero violações WCAG 2.x A/AA**. Contrastes do tema
+      escuro corrigidos (variantes `dark:` que faltavam em PopupApp, HistoricoList
+      e OptionsApp). O scan roda junto com `npm run test:e2e`.
 - [x] Anexar a certidão PDF oficial do TCU ao relatório. ✅ (2026-06-10)
 
 ## Riscos abertos

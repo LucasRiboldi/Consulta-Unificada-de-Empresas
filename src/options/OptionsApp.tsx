@@ -43,10 +43,10 @@ export function OptionsApp({ deps }: { deps: OptionsDeps }) {
           Chave da API do Portal da Transparência (para consulta do sócio por CPF)
         </label>
         <Input id="key" value={key} onChange={(e) => setKey(e.target.value)} autoComplete="off" />
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
           Opcional. A consulta de sanções da empresa não exige chave.{' '}
           <a
-            className="text-blue-700 underline"
+            className="text-blue-700 underline dark:text-blue-400"
             href={CADASTRO_URL}
             target="_blank"
             rel="noreferrer"

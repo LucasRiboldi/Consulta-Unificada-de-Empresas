@@ -53,20 +53,23 @@ export function HistoricoList({
       </div>
 
       {itens.length === 0 ? (
-        <p className="text-xs text-slate-500">Nenhuma consulta no histórico.</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400">Nenhuma consulta no histórico.</p>
       ) : (
         <ul className="space-y-1">
           {itens.map((e, i) => (
-            <li key={e.id ?? i} className="rounded-md border border-slate-200 p-2 text-sm">
+            <li
+              key={e.id ?? i}
+              className="rounded-md border border-slate-200 p-2 text-sm dark:border-slate-700"
+            >
               <div className="flex items-center justify-between gap-2">
                 <span className="font-medium">{e.razaoSocial}</span>
                 <Badge tone={e.temPendencia ? 'alerta' : 'ok'}>
                   {e.temPendencia ? 'Pendência' : 'OK'}
                 </Badge>
               </div>
-              <div className="text-xs text-slate-500">{e.cnpj}</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">{e.cnpj}</div>
               {e.socioMajoritarioCpfMascarado && (
-                <div className="text-xs text-slate-500">
+                <div className="text-xs text-slate-500 dark:text-slate-400">
                   Sócio: {e.socioMajoritarioNome ?? '—'} (
                   <span>{e.socioMajoritarioCpfMascarado}</span>)
                 </div>

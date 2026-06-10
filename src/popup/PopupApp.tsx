@@ -139,7 +139,7 @@ export function PopupApp({ messenger, initialCnpj = '', historico, onExportarPdf
           <div className="flex items-start justify-between gap-2">
             <div>
               <h2 className="font-semibold leading-tight">{view.titulo}</h2>
-              <p className="text-xs text-slate-500">{view.cnpj}</p>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{view.cnpj}</p>
             </div>
             <Badge tone={view.situacao === 'pendencia' ? 'alerta' : 'ok'}>
               {view.situacaoLabel}
@@ -160,21 +160,21 @@ export function PopupApp({ messenger, initialCnpj = '', historico, onExportarPdf
           <ul className="space-y-1 text-sm">
             {view.fontes.map((f) => (
               <li key={f.id} className="flex justify-between">
-                <span className="text-slate-600">{f.nome}</span>
+                <span className="text-slate-600 dark:text-slate-300">{f.nome}</span>
                 <span className="font-medium">{statusLabel[f.status]}</span>
               </li>
             ))}
           </ul>
 
           {view.socio && (
-            <div className="rounded-md bg-slate-50 p-2 text-sm">
+            <div className="rounded-md bg-slate-50 p-2 text-sm dark:bg-slate-800">
               <p className="font-medium">Sócio majoritário</p>
               <p>{view.socio.nome ?? '—'}</p>
               {view.socio.cpfMascarado && (
-                <p className="text-slate-500">{view.socio.cpfMascarado}</p>
+                <p className="text-slate-500 dark:text-slate-400">{view.socio.cpfMascarado}</p>
               )}
               {view.socio.confirmar && (
-                <p className="mt-1 text-xs text-amber-700">
+                <p className="mt-1 text-xs text-amber-700 dark:text-amber-400">
                   Confirme o sócio majoritário manualmente.
                 </p>
               )}
@@ -184,7 +184,10 @@ export function PopupApp({ messenger, initialCnpj = '', historico, onExportarPdf
           {view.alertas.length > 0 && (
             <ul className="space-y-1">
               {view.alertas.map((a, i) => (
-                <li key={i} className="rounded-md bg-amber-50 p-2 text-xs text-amber-800">
+                <li
+                  key={i}
+                  className="rounded-md bg-amber-50 p-2 text-xs text-amber-800 dark:bg-amber-950 dark:text-amber-300"
+                >
                   {a}
                 </li>
               ))}
@@ -194,7 +197,7 @@ export function PopupApp({ messenger, initialCnpj = '', historico, onExportarPdf
       )}
 
       {historico && (
-        <section className="border-t border-slate-200 pt-3">
+        <section className="border-t border-slate-200 pt-3 dark:border-slate-700">
           <h2 className="mb-2 text-sm font-semibold">Histórico</h2>
           <HistoricoList repo={historico} reloadKey={reloadHistorico} />
         </section>

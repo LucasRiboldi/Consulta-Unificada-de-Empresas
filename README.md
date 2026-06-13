@@ -42,8 +42,9 @@ O LicitCheck junta tudo isso em **um único lugar**:
   o arquivo traz, nas últimas páginas, o documento oficial emitido pelo próprio Tribunal de
   Contas da União — o mesmo que você obteria entrando no site do TCU.
 - 🏛️ **Integração com o SICAF (opcional):** se você tiver acesso ao portal Comprasnet, a
-  extensão pode ler diretamente da sua sessão autenticada os dados de **habilitação da empresa**
-  e o **CPF completo dos sócios** — sem você precisar copiar e colar nada.
+  extensão usa a sua sessão já autenticada para, **sozinha**, pesquisar o CNPJ, identificar o
+  **sócio majoritário pelo maior percentual de participação** e ainda **baixar os documentos
+  oficiais** (Situação do Fornecedor, Contrato Social) — sem você copiar e colar nada.
 - 🕓 **Guarda um histórico** das suas últimas consultas, para você reencontrar com facilidade.
 - 🖱️ **Atalho rápido:** selecione um CNPJ em qualquer página, clique com o botão direito e
   escolha **”Consultar empresa”**.

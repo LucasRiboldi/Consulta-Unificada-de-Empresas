@@ -8,6 +8,8 @@ export default defineManifest({
   version: pkg.version,
   description:
     'Consulta unificada de empresas e do sócio majoritário (art. 12) para processos licitatórios. 100% local.',
+  homepage_url: 'https://github.com/LucasRiboldi/Consulta-Unificada-de-Empresas',
+  author: { email: 'lucasriboldi.dev@gmail.com' },
   icons: {
     16: 'public/icons/icon-16.png',
     48: 'public/icons/icon-48.png',
@@ -32,7 +34,6 @@ export default defineManifest({
       run_at: 'document_idle',
     },
   ],
-  optional_permissions: ['scripting'],
   optional_host_permissions: ['https://*.comprasnet.gov.br/*'],
   content_security_policy: {
     extension_pages:

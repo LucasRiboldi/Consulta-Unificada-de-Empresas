@@ -1,7 +1,7 @@
 # Política de Privacidade — LicitCheck
 
 > Compatível com LGPD (Lei 13.709/2018) e Chrome Web Store Developer Program Policies.
-> Versão de trabalho — revisar antes da publicação. Atualizado: 2026-06-07.
+> Atualizado: 2026-06-13.
 
 ## Princípio
 
@@ -39,11 +39,20 @@ do TCU (`certidoes-apf.apps.tcu.gov.br`) e/ou Portal da Transparência. Ocorre *
 seu navegador e o órgão**, sem intermediário nosso. O tratamento pelas fontes segue as políticas
 de cada órgão.
 
-## SICAF
+## SICAF (opcional, desativado por padrão)
 
-A integração SICAF lê **apenas os dados já exibidos na tela** após você se autenticar no site
-oficial do governo (incluindo dados de habilitação e o quadro de sócios com CPF). A extensão
-**nunca lê, captura ou armazena sua senha, login ou token de sessão gov.br**.
+A integração com o SICAF é **opcional**, vem **desligada** e só funciona depois que você a ativa
+nas configurações e concede a permissão de acesso ao `*.comprasnet.gov.br`. Quando ativada:
+
+- A extensão abre uma **aba em segundo plano** no portal Comprasnet usando a **sua sessão já
+  autenticada** (gov.br), pesquisa o CNPJ e **lê apenas os dados exibidos na tela** — habilitação,
+  quadro de sócios com CPF e percentual de participação, e a flag "Possui pendência".
+- Ao usar "Baixar documentos do SICAF", a extensão clica nos relatórios oficiais e os PDFs são
+  salvos na **pasta de Downloads do seu computador** — nada é enviado para fora.
+- A extensão **nunca lê, captura ou armazena sua senha, login ou token de sessão gov.br**, e
+  **nunca preenche campos de senha**.
+- A permissão pode ser **revogada a qualquer momento** nas configurações (o que desliga a aba e
+  o acesso ao Comprasnet).
 
 ## Base legal (LGPD)
 
@@ -61,9 +70,12 @@ e chaves na tela de configurações, ou removendo a extensão.
 
 - `contextMenus` — menu "Consultar empresa" ao selecionar um CNPJ.
 - `storage` — guardar configurações e chaves localmente.
-- `downloads` — salvar os relatórios PDF.
-- `scripting` + host do SICAF (**opcional, em runtime**) — só se você ativar a integração SICAF;
-  para ler os dados exibidos na sua sessão autenticada.
+- `downloads` — salvar os relatórios PDF (inclui os documentos do SICAF).
+- **Host do Comprasnet** (`https://*.comprasnet.gov.br/*`, **opcional, concedido em runtime**) —
+  só se você ativar a integração SICAF; permite ler os dados exibidos na sua sessão autenticada e
+  baixar os relatórios oficiais. Revogável a qualquer momento.
+- Hosts das fontes de consulta (BrasilAPI, TCU, Portal da Transparência) — para enviar a consulta
+  direto do seu navegador ao órgão oficial.
 
 ## Contato
 

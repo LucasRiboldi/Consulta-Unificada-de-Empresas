@@ -37,3 +37,14 @@ export async function getRetencaoDias(fallback = 180): Promise<number> {
 export async function saveRetencaoDias(dias: number): Promise<void> {
   await chrome.storage.local.set({ [RETENCAO_DIAS]: dias });
 }
+
+const SICAF_ENABLED = 'sicafEnabled';
+
+export async function loadSicafEnabled(): Promise<boolean> {
+  const out = await chrome.storage.local.get(SICAF_ENABLED);
+  return (out[SICAF_ENABLED] as boolean | undefined) ?? false;
+}
+
+export async function saveSicafEnabled(enabled: boolean): Promise<void> {
+  await chrome.storage.local.set({ [SICAF_ENABLED]: enabled });
+}

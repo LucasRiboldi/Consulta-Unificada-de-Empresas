@@ -1,12 +1,15 @@
 import { ConsultarRequestSchema, type ConsultarResponse } from '@/messaging/messages';
 import type { ConsultaInput, ResultadoConsulta } from '@/services/consulta.service';
-import type { ProviderId } from '@/providers/provider.types';
+import type { ProviderMeta, ProviderId } from '@/providers/provider.types';
 
 type UserKeys = Partial<Record<ProviderId, string>>;
 
 export interface MessageRouterDeps {
   readonly service: { consultar(input: ConsultaInput): Promise<ResultadoConsulta> };
   readonly loadUserKeys: () => Promise<UserKeys>;
+  readonly loadSicafEnabled: () => Promise<boolean>;
+  /** Referência mutável ao meta do provider SICAF para atualizar enabled dinamicamente. */
+  readonly sicafMeta: ProviderMeta;
 }
 
 export function createMessageRouter(deps: MessageRouterDeps) {
@@ -18,7 +21,12 @@ export function createMessageRouter(deps: MessageRouterDeps) {
       }
 
       try {
-        const userKeys = await deps.loadUserKeys();
+        const [userKeys, sicafEnabled] = await Promise.all([
+          deps.loadUserKeys(),
+          deps.loadSicafEnabled(),
+        ]);
+        deps.sicafMeta.enabled = sicafEnabled;
+
         const input: ConsultaInput = {
           cnpj: parsed.data.cnpj,
           userKeys,

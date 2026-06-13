@@ -6,11 +6,15 @@ import {
   saveUserKey,
   getRetencaoDias,
   saveRetencaoDias,
+  loadSicafEnabled,
+  saveSicafEnabled,
 } from '@/storage/settings.store';
 import { createHistoricoRepository } from '@/storage/historico.repository';
 import '@/index.css';
 
 const historico = createHistoricoRepository();
+
+const SICAF_ORIGINS = ['https://*.comprasnet.gov.br/*'];
 
 const deps: OptionsDeps = {
   loadKey: async () => (await loadUserKeys()).transparencia ?? '',
@@ -18,6 +22,11 @@ const deps: OptionsDeps = {
   loadRetencao: () => getRetencaoDias(),
   saveRetencao: (dias) => saveRetencaoDias(dias),
   clearHistorico: () => historico.clear(),
+  loadSicafEnabled,
+  saveSicafEnabled,
+  requestSicafPermission: () => chrome.permissions.request({ origins: SICAF_ORIGINS }),
+  revokeSicafPermission: () =>
+    chrome.permissions.remove({ origins: SICAF_ORIGINS }).then(() => undefined),
 };
 
 const el = document.getElementById('root');

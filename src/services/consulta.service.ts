@@ -5,6 +5,7 @@ import type { ConsultaProvider, ProviderResult } from '@/providers/provider.type
 import type { BrasilApiData } from '@/providers/brasilapi.provider';
 import type { TcuConsolidadaData } from '@/providers/tcu-consolidada.provider';
 import type { TransparenciaData } from '@/providers/transparencia.provider';
+import type { SicafData } from '@/providers/sicaf.provider';
 import type { SelecaoSocioMajoritario } from '@/shared/types/socio';
 import type { ProviderId } from '@/providers/provider.types';
 
@@ -26,6 +27,8 @@ export interface ResultadoConsulta {
     readonly cpfInformado: string | null;
     readonly sancoesSocio: ProviderResult<TransparenciaData> | null;
   };
+  /** Habilitação e sócios do SICAF (null se provider desabilitado ou não pronto). */
+  readonly sicaf: ProviderResult<SicafData> | null;
   readonly temPendencia: boolean;
   readonly alertas: readonly string[];
 }
@@ -34,6 +37,7 @@ export interface ConsultaServiceDeps {
   readonly brasilapi: ConsultaProvider<BrasilApiData>;
   readonly tcu: ConsultaProvider<TcuConsolidadaData>;
   readonly transparencia: ConsultaProvider<TransparenciaData>;
+  readonly sicaf: ConsultaProvider<SicafData>;
 }
 
 export function createConsultaService(deps: ConsultaServiceDeps) {
@@ -50,10 +54,12 @@ export function createConsultaService(deps: ConsultaServiceDeps) {
       };
       const ctxPj = { ...baseCtx, sujeito: { tipo: 'pj' as const, cnpj } };
 
-      // Empresa: cadastro + sanções (paralelo).
-      const [cadastro, sancoesEmpresa] = await Promise.all([
+      // Empresa: cadastro + sanções + SICAF (paralelo quando prontos).
+      const sicafReady = deps.sicaf.isReady(ctxPj);
+      const [cadastro, sancoesEmpresa, sicafResult] = await Promise.all([
         deps.brasilapi.consultar(ctxPj),
         deps.tcu.consultar(ctxPj),
+        sicafReady ? deps.sicaf.consultar(ctxPj) : Promise.resolve(null),
       ]);
 
       const alertas: string[] = [];
@@ -85,6 +91,11 @@ export function createConsultaService(deps: ConsultaServiceDeps) {
 
       const pendenciaEmpresa = sancoesEmpresa.ok && sancoesEmpresa.data?.temPendencia === true;
       const pendenciaSocio = sancoesSocio?.ok === true && sancoesSocio.data?.temSancao === true;
+      const naoHabilitadoSicaf = sicafResult?.ok === true && sicafResult.data?.habilitado === false;
+
+      if (sicafResult !== null && !sicafResult.ok) {
+        alertas.push(`SICAF: ${sicafResult.error ?? 'Erro na consulta.'}`);
+      }
 
       return {
         cnpjConsultado: cnpj,
@@ -92,7 +103,8 @@ export function createConsultaService(deps: ConsultaServiceDeps) {
         cadastro,
         sancoesEmpresa,
         socioMajoritario: { selecao, cpfInformado, sancoesSocio },
-        temPendencia: Boolean(pendenciaEmpresa || pendenciaSocio),
+        sicaf: sicafResult,
+        temPendencia: Boolean(pendenciaEmpresa || pendenciaSocio || naoHabilitadoSicaf),
         alertas,
       };
     },

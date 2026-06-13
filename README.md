@@ -41,9 +41,12 @@ O LicitCheck junta tudo isso em **um único lugar**:
 - 📎 **Inclui a certidão oficial do TCU dentro do PDF:** além do resumo feito pela extensão,
   o arquivo traz, nas últimas páginas, o documento oficial emitido pelo próprio Tribunal de
   Contas da União — o mesmo que você obteria entrando no site do TCU.
+- 🏛️ **Integração com o SICAF (opcional):** se você tiver acesso ao portal Comprasnet, a
+  extensão pode ler diretamente da sua sessão autenticada os dados de **habilitação da empresa**
+  e o **CPF completo dos sócios** — sem você precisar copiar e colar nada.
 - 🕓 **Guarda um histórico** das suas últimas consultas, para você reencontrar com facilidade.
 - 🖱️ **Atalho rápido:** selecione um CNPJ em qualquer página, clique com o botão direito e
-  escolha **“Consultar empresa”**.
+  escolha **”Consultar empresa”**.
 - ♿ **Acessível e confortável para os olhos:** funciona com leitores de tela, dá para usar
   só com o teclado, e se o seu computador estiver no **modo escuro**, a extensão acompanha —
   com cores verificadas automaticamente para garantir uma leitura confortável nos dois temas.
@@ -84,16 +87,21 @@ O nome do arquivo já vem organizado, por exemplo:
 São cadastros públicos do governo que registram empresas (e pessoas) impedidas de contratar
 com a administração pública:
 
-| Lista               | O que ela mostra, em palavras simples                                  |
-| ------------------- | ---------------------------------------------------------------------- |
-| **Receita Federal** | Os dados cadastrais da empresa: nome, situação e quem são os sócios.   |
-| **CEIS**            | Empresas consideradas “inidôneas” ou suspensas de licitar.             |
-| **CNEP**            | Empresas que receberam punições (por exemplo, pela Lei Anticorrupção). |
-| **TCU**             | Lista de impedidos mantida pelo Tribunal de Contas da União.           |
-| **CNJ**             | Condenações por improbidade administrativa registradas pela Justiça.   |
+| Lista               | O que ela mostra, em palavras simples                                              | Cadastro |
+| ------------------- | ---------------------------------------------------------------------------------- | -------- |
+| **Receita Federal** | Os dados cadastrais da empresa: nome, situação e quem são os sócios.               | Não      |
+| **CEIS**            | Empresas consideradas “inidôneas” ou suspensas de licitar.                         | Não      |
+| **CNEP**            | Empresas que receberam punições (por exemplo, pela Lei Anticorrupção).             | Não      |
+| **TCU**             | Lista de impedidos mantida pelo Tribunal de Contas da União.                       | Não      |
+| **CNJ**             | Condenações por improbidade administrativa registradas pela Justiça.               | Não      |
+| **Transparência**   | Sanções por CPF do sócio majoritário (art. 12) — verificação individual mais fina. | Gratuito |
+| **SICAF**           | Habilitação e CPF completo dos sócios, lidos da sua sessão no Comprasnet.          | Opcional |
 
-> 💡 A boa notícia: as quatro listas de punições (CEIS, CNEP, TCU e CNJ) são consultadas de
-> uma só vez, por uma fonte oficial que já reúne todas elas — e **sem precisar de cadastro**.
+> 💡 As quatro listas de punições (CEIS, CNEP, TCU e CNJ) são consultadas de uma só vez, por
+> uma fonte oficial que já reúne todas elas — e **sem precisar de cadastro**.
+
+> 🏛️ A integração com o **SICAF** é opcional e só funciona quando você está logado no portal
+> Comprasnet. Ela é desativada por padrão e pode ser ligada nas configurações da extensão.
 
 ---
 
@@ -109,6 +117,9 @@ gratuito** no Portal da Transparência, feito uma única vez nas configurações
 > Quando o sistema não tem certeza de quem é o sócio majoritário, ele **avisa você para
 > confirmar manualmente** — nada é decidido “às escondidas”.
 
+Se o SICAF estiver ativado e você estiver na página do fornecedor no Comprasnet, a extensão
+preenche automaticamente o CPF do sócio — sem digitação.
+
 ---
 
 ## 🔐 Suas informações ficam só com você
@@ -118,9 +129,12 @@ Essa é uma promessa central do LicitCheck:
 - ✅ **Nada do que você consulta sai do seu computador.** Não existe servidor nosso recebendo
   seus dados.
 - ✅ **Nenhuma cobrança, nenhum rastreamento, nenhuma propaganda.**
-- ✅ A extensão **nunca pede nem guarda sua senha** de sites do governo.
+- ✅ A extensão **nunca pede nem guarda sua senha** de sites do governo. A integração com o
+  SICAF apenas _lê_ dados já visíveis na tela — não toca em campos de senha nem em tokens.
 - ✅ Dados sensíveis, como o CPF de um sócio, aparecem **parcialmente ocultos** na tela
   (por exemplo: `***.444.777-**`).
+- ✅ A permissão de acesso ao Comprasnet (SICAF) é **opcional** e pode ser revogada a qualquer
+  momento nas configurações da extensão.
 - ✅ Você pode **apagar todo o histórico** quando quiser, com um clique.
 
 Em resumo: a ferramenta trabalha **dentro do seu navegador**, como uma calculadora — ela faz
@@ -133,6 +147,18 @@ as contas para você, mas não manda nada para lugar nenhum.
 **Nada.** O LicitCheck é gratuito e de **código aberto** (qualquer pessoa pode inspecionar
 como ele funciona). Isso significa transparência total sobre o que a ferramenta faz com os
 seus dados — que é, justamente, mantê-los com você.
+
+---
+
+## ⚙️ Configurações disponíveis
+
+Clique com o botão direito no ícone da extensão e escolha **"Opções"** para acessar:
+
+| Configuração                                | Para que serve                                                                                                                                                 | Obrigatória? |
+| ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------ |
+| **Chave da API do Portal da Transparência** | Habilita a consulta de sanções pelo CPF do sócio majoritário (art. 12). Cadastro gratuito e feito em minutos no site do Transparência.                         | Não          |
+| **Retenção do histórico (dias)**            | Define por quanto tempo a extensão guarda suas consultas anteriores. Padrão: 180 dias.                                                                         | Não          |
+| **SICAF — Habilitação e Sócios**            | Ativa a leitura de dados da sua sessão no portal Comprasnet. Ao ligar, o Chrome exibe um aviso pedindo sua confirmação. Pode ser desligado a qualquer momento. | Não          |
 
 ---
 
@@ -165,6 +191,14 @@ Nunca. Não há servidor nosso, não há coleta, não há propaganda.
 Além de mais de cem verificações automáticas no código, a extensão é **instalada e testada
 automaticamente num navegador de verdade** a cada mudança: um robô abre a extensão, digita um
 CNPJ, confere as mensagens na tela e testa a página de configurações — como um usuário faria.
+A acessibilidade (leitores de tela, contraste de cores) também é verificada automaticamente
+nos dois temas (claro e escuro), com zero violações detectadas.
+
+**O que é o SICAF e preciso dele?**
+O SICAF é o cadastro de fornecedores do governo federal, acessível pelo portal Comprasnet.
+A integração com ele é **completamente opcional** — a extensão funciona normalmente sem ela.
+Ela é útil apenas para quem já usa o Comprasnet no dia a dia e quer aproveitar os dados de
+habilitação e o CPF dos sócios sem redigitar nada.
 
 ---
 

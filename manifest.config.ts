@@ -25,6 +25,13 @@ export default defineManifest({
     'https://certidoes-apf.apps.tcu.gov.br/*',
     'https://api.portaldatransparencia.gov.br/*',
   ],
+  content_scripts: [
+    {
+      matches: ['https://*.comprasnet.gov.br/*'],
+      js: ['src/content/sicaf/index.ts'],
+      run_at: 'document_idle',
+    },
+  ],
   optional_permissions: ['scripting'],
   optional_host_permissions: ['https://*.comprasnet.gov.br/*'],
   content_security_policy: {

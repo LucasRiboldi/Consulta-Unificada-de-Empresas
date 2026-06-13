@@ -21,11 +21,16 @@ export interface ResultadoConsulta {
   readonly cnpjConsultado: string;
   readonly geradoEm: string;
   readonly cadastro: ProviderResult<BrasilApiData>;
+  /** Sanções da empresa: Consolidada do TCU (CEIS/CNEP/TCU/CNJ, keyless). */
   readonly sancoesEmpresa: ProviderResult<TcuConsolidadaData>;
+  /** Sanções da empresa no Portal da Transparência (CEIS/CNEP detalhado, com chave). */
+  readonly sancoesEmpresaTransparencia: ProviderResult<TransparenciaData> | null;
   readonly socioMajoritario: {
     readonly selecao: SelecaoSocioMajoritario;
     readonly cpfInformado: string | null;
     readonly sancoesSocio: ProviderResult<TransparenciaData> | null;
+    /** Flag "Possui pendência" do SICAF para o sócio majoritário (keyless). */
+    readonly pendenciaSicaf: boolean | null;
   };
   /** Habilitação e sócios do SICAF (null se provider desabilitado ou não pronto). */
   readonly sicaf: ProviderResult<SicafData> | null;
@@ -40,16 +45,15 @@ export interface ConsultaServiceDeps {
   readonly sicaf: ConsultaProvider<SicafData>;
 }
 
-/** CPF do sócio de maior participação no SICAF (ignora administradores sem % e sócios PJ). */
-function cpfMajoritarioDoSicaf(socios: readonly SicafSocio[]): string | undefined {
+/** Sócio de maior participação no SICAF (ignora administradores sem % e sócios PJ). */
+function socioMajoritarioSicaf(socios: readonly SicafSocio[]): SicafSocio | undefined {
   const elegiveis = socios.filter(
     (s) => s.tipoDocumento === 'cpf' && s.participacaoSocietaria !== null,
   );
   if (elegiveis.length === 0) return undefined;
-  const maior = elegiveis.reduce((a, s) =>
+  return elegiveis.reduce((a, s) =>
     (s.participacaoSocietaria ?? 0) > (a.participacaoSocietaria ?? 0) ? s : a,
   );
-  return maior.documento;
 }
 
 export function createConsultaService(deps: ConsultaServiceDeps) {
@@ -66,13 +70,16 @@ export function createConsultaService(deps: ConsultaServiceDeps) {
       };
       const ctxPj = { ...baseCtx, sujeito: { tipo: 'pj' as const, cnpj } };
 
-      // Empresa: cadastro + sanções + SICAF (paralelo quando prontos).
+      // Empresa: cadastro + sanções (TCU) + SICAF + CEIS/CNEP no Transparência (paralelo).
       const sicafReady = deps.sicaf.isReady(ctxPj);
-      const [cadastro, sancoesEmpresa, sicafResult] = await Promise.all([
-        deps.brasilapi.consultar(ctxPj),
-        deps.tcu.consultar(ctxPj),
-        sicafReady ? deps.sicaf.consultar(ctxPj) : Promise.resolve(null),
-      ]);
+      const transpEmpresaReady = deps.transparencia.isReady(ctxPj); // exige chave BYOK
+      const [cadastro, sancoesEmpresa, sicafResult, sancoesEmpresaTransparencia] =
+        await Promise.all([
+          deps.brasilapi.consultar(ctxPj),
+          deps.tcu.consultar(ctxPj),
+          sicafReady ? deps.sicaf.consultar(ctxPj) : Promise.resolve(null),
+          transpEmpresaReady ? deps.transparencia.consultar(ctxPj) : Promise.resolve(null),
+        ]);
 
       const alertas: string[] = [];
 
@@ -84,17 +91,25 @@ export function createConsultaService(deps: ConsultaServiceDeps) {
         alertas.push('Confirme o sócio majoritário manualmente (percentual não disponível).');
       }
 
-      // Sócio majoritário (art. 12): CPF manual tem prioridade; senão, identificado
-      // automaticamente pelo SICAF (maior participação societária).
+      // Sócio majoritário do SICAF (se houver) — fonte do CPF e da pendência keyless.
+      const socioSicaf =
+        sicafResult?.ok && sicafResult.data
+          ? socioMajoritarioSicaf(sicafResult.data.socios)
+          : undefined;
+
+      // CPF do sócio majoritário (art. 12): manual tem prioridade; senão, do SICAF.
       let cpfMajoritario = input.socioMajoritarioCpf;
       let origemCpf: 'manual' | 'sicaf' | null = cpfMajoritario !== undefined ? 'manual' : null;
 
-      if (cpfMajoritario === undefined && sicafResult?.ok && sicafResult.data) {
-        const auto = cpfMajoritarioDoSicaf(sicafResult.data.socios);
-        if (auto !== undefined) {
-          cpfMajoritario = auto;
-          origemCpf = 'sicaf';
-        }
+      if (cpfMajoritario === undefined && socioSicaf) {
+        cpfMajoritario = socioSicaf.documento;
+        origemCpf = 'sicaf';
+      }
+
+      // Pendência do sócio majoritário pelo SICAF (keyless), independente da chave BYOK.
+      const pendenciaSicaf = socioSicaf?.possuiPendencia ?? null;
+      if (pendenciaSicaf === true) {
+        alertas.push('SICAF indica que o sócio majoritário possui pendência.');
       }
 
       let cpfInformado: string | null = null;
@@ -119,11 +134,17 @@ export function createConsultaService(deps: ConsultaServiceDeps) {
       }
 
       const pendenciaEmpresa = sancoesEmpresa.ok && sancoesEmpresa.data?.temPendencia === true;
+      const pendenciaEmpresaTransp =
+        sancoesEmpresaTransparencia?.ok === true &&
+        sancoesEmpresaTransparencia.data?.temSancao === true;
       const pendenciaSocio = sancoesSocio?.ok === true && sancoesSocio.data?.temSancao === true;
       const naoHabilitadoSicaf = sicafResult?.ok === true && sicafResult.data?.habilitado === false;
 
       if (sicafResult !== null && !sicafResult.ok) {
         alertas.push(`SICAF: ${sicafResult.error ?? 'Erro na consulta.'}`);
+      }
+      if (pendenciaEmpresaTransp) {
+        alertas.push('Empresa com registro no CEIS/CNEP (Portal da Transparência).');
       }
 
       return {
@@ -131,9 +152,16 @@ export function createConsultaService(deps: ConsultaServiceDeps) {
         geradoEm: new Date().toISOString(),
         cadastro,
         sancoesEmpresa,
-        socioMajoritario: { selecao, cpfInformado, sancoesSocio },
+        sancoesEmpresaTransparencia,
+        socioMajoritario: { selecao, cpfInformado, sancoesSocio, pendenciaSicaf },
         sicaf: sicafResult,
-        temPendencia: Boolean(pendenciaEmpresa || pendenciaSocio || naoHabilitadoSicaf),
+        temPendencia: Boolean(
+          pendenciaEmpresa ||
+          pendenciaEmpresaTransp ||
+          pendenciaSocio ||
+          pendenciaSicaf === true ||
+          naoHabilitadoSicaf,
+        ),
         alertas,
       };
     },

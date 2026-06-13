@@ -32,15 +32,24 @@ export function buildConsultaView(r: ResultadoConsulta): ConsultaView {
       : 'limpo'
     : 'erro';
 
-  const socioRes = r.socioMajoritario.sancoesSocio;
-  const transpStatus: FonteStatus =
-    socioRes === null
+  const statusSancao = (
+    res: { ok: boolean; data?: { temSancao?: boolean } } | null | undefined,
+  ): FonteStatus =>
+    res === null || res === undefined
       ? 'na'
-      : socioRes.ok
-        ? socioRes.data?.temSancao
+      : res.ok
+        ? res.data?.temSancao
           ? 'pendencia'
           : 'limpo'
         : 'erro';
+
+  const socioRes = r.socioMajoritario.sancoesSocio;
+  const transpStatus = statusSancao(socioRes);
+  const transpEmpresaStatus = statusSancao(r.sancoesEmpresaTransparencia);
+
+  const pendSicaf = r.socioMajoritario.pendenciaSicaf;
+  const sicafSocioStatus: FonteStatus =
+    pendSicaf === null || pendSicaf === undefined ? 'na' : pendSicaf ? 'pendencia' : 'limpo';
 
   const candidato = r.socioMajoritario.selecao.candidato;
   const cpf = r.socioMajoritario.cpfInformado;
@@ -52,8 +61,18 @@ export function buildConsultaView(r: ResultadoConsulta): ConsultaView {
     situacaoLabel: r.temPendencia ? 'Pendência encontrada' : 'Sem pendências',
     fontes: [
       { id: 'brasilapi', nome: 'Receita (BrasilAPI)', status: r.cadastro.ok ? 'ok' : 'erro' },
-      { id: 'tcu-consolidada', nome: 'TCU Consolidada (CEIS/CNEP/TCU/CNJ)', status: tcuStatus },
-      { id: 'transparencia', nome: 'Transparência — sócio (CPF)', status: transpStatus },
+      { id: 'tcu-consolidada', nome: 'Empresa — TCU (CEIS/CNEP/TCU/CNJ)', status: tcuStatus },
+      {
+        id: 'transparencia-empresa',
+        nome: 'Empresa — CEIS/CNEP (Transparência)',
+        status: transpEmpresaStatus,
+      },
+      {
+        id: 'transparencia-socio',
+        nome: 'Sócio — CEIS/CNEP (Transparência)',
+        status: transpStatus,
+      },
+      { id: 'sicaf-socio', nome: 'Sócio — pendência (SICAF)', status: sicafSocioStatus },
     ],
     socio:
       candidato || cpf

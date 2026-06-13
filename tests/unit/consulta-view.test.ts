@@ -36,6 +36,7 @@ function resultado(over: Partial<ResultadoConsulta> = {}): ResultadoConsulta {
         certidaoPdfBase64: null,
       },
     },
+    sancoesEmpresaTransparencia: null,
     socioMajoritario: {
       selecao: {
         candidato: null,
@@ -45,7 +46,9 @@ function resultado(over: Partial<ResultadoConsulta> = {}): ResultadoConsulta {
       },
       cpfInformado: null,
       sancoesSocio: null,
+      pendenciaSicaf: null,
     },
+    sicaf: null,
     temPendencia: false,
     alertas: ['alerta A'],
     ...over,
@@ -75,10 +78,36 @@ describe('buildConsultaView', () => {
     const v = buildConsultaView(resultado());
     const tcu = v.fontes.find((f) => f.id === 'tcu-consolidada');
     const brasil = v.fontes.find((f) => f.id === 'brasilapi');
-    const transp = v.fontes.find((f) => f.id === 'transparencia');
+    const transp = v.fontes.find((f) => f.id === 'transparencia-socio');
     expect(brasil?.status).toBe('ok');
     expect(tcu?.status).toBe('limpo');
     expect(transp?.status).toBe('na');
+  });
+
+  test('empresa no Transparência e pendência do sócio via SICAF viram fontes', () => {
+    const v = buildConsultaView(
+      resultado({
+        sancoesEmpresaTransparencia: {
+          providerId: 'transparencia',
+          ok: true,
+          fetchedAt: 'now',
+          data: { codigoConsultado: 'x', temSancao: true, ceis: [{} as never], cnep: [] },
+        },
+        socioMajoritario: {
+          selecao: {
+            candidato: null,
+            requerConfirmacaoManual: false,
+            confianca: 'nenhuma',
+            motivo: '',
+          },
+          cpfInformado: null,
+          sancoesSocio: null,
+          pendenciaSicaf: true,
+        },
+      }),
+    );
+    expect(v.fontes.find((f) => f.id === 'transparencia-empresa')?.status).toBe('pendencia');
+    expect(v.fontes.find((f) => f.id === 'sicaf-socio')?.status).toBe('pendencia');
   });
 
   test('sócio mascara o CPF e sinaliza confirmação manual', () => {

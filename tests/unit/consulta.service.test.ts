@@ -142,6 +142,9 @@ function build(over: {
     ['pf', 'pj'],
     over.transp ?? transp(false),
   );
+  // O Transparência real exige chave BYOK (vale p/ empresa e sócio).
+  (transparencia as unknown as { isReady: (c: ConsultaContext) => boolean }).isReady = (c) =>
+    Boolean(c.userKeys.transparencia);
   const sicaf = over.sicaf ?? sicafStub();
   const service = createConsultaService({ brasilapi, tcu: tcuP, transparencia, sicaf });
   return { service, brasilapi, tcuP, transparencia, sicaf };
@@ -197,7 +200,23 @@ describe('ConsultaService', () => {
       userKeys: { transparencia: 'KEY' },
       socioMajoritarioCpf: '111.444.777-35',
     });
-    expect(transparencia.calls[0]?.sujeito).toEqual({ tipo: 'pf', cpf: '11144477735' });
+    expect(
+      transparencia.calls.some((c) => c.sujeito.tipo === 'pf' && c.sujeito.cpf === '11144477735'),
+    ).toBe(true);
+  });
+
+  test('with key → queries the company (PJ) on Transparência too', async () => {
+    const { service, transparencia } = build({});
+    const r = await service.consultar({ cnpj: CNPJ, userKeys: { transparencia: 'KEY' } });
+    expect(transparencia.calls.some((c) => c.sujeito.tipo === 'pj')).toBe(true);
+    expect(r.sancoesEmpresaTransparencia?.ok).toBe(true);
+  });
+
+  test('without key → does not query the company on Transparência', async () => {
+    const { service, transparencia } = build({});
+    const r = await service.consultar({ cnpj: CNPJ, userKeys: {} });
+    expect(transparencia.calls).toHaveLength(0);
+    expect(r.sancoesEmpresaTransparencia).toBeNull();
   });
 
   test('temPendencia is true when the company has a TCU pendency', async () => {
@@ -233,7 +252,9 @@ describe('ConsultaService', () => {
     const { service, transparencia } = build({ sicaf });
     const r = await service.consultar({ cnpj: CNPJ, userKeys: { transparencia: 'KEY' } });
     // Consulta o art. 12 com o CPF do sócio de MAIOR participação — sem entrada manual.
-    expect(transparencia.calls[0]?.sujeito).toEqual({ tipo: 'pf', cpf: '52998224725' });
+    expect(
+      transparencia.calls.some((c) => c.sujeito.tipo === 'pf' && c.sujeito.cpf === '52998224725'),
+    ).toBe(true);
     expect(r.alertas.some((a) => /automaticamente/i.test(a))).toBe(true);
   });
 
@@ -247,7 +268,9 @@ describe('ConsultaService', () => {
     });
     const { service, transparencia } = build({ sicaf });
     await service.consultar({ cnpj: CNPJ, userKeys: { transparencia: 'KEY' } });
-    expect(transparencia.calls[0]?.sujeito).toEqual({ tipo: 'pf', cpf: '52998224725' });
+    expect(
+      transparencia.calls.some((c) => c.sujeito.tipo === 'pf' && c.sujeito.cpf === '52998224725'),
+    ).toBe(true);
   });
 
   test('manual CPF takes priority over SICAF auto-detection', async () => {
@@ -261,12 +284,35 @@ describe('ConsultaService', () => {
       userKeys: { transparencia: 'KEY' },
       socioMajoritarioCpf: '111.444.777-35',
     });
-    expect(transparencia.calls[0]?.sujeito).toEqual({ tipo: 'pf', cpf: '11144477735' });
+    expect(
+      transparencia.calls.some((c) => c.sujeito.tipo === 'pf' && c.sujeito.cpf === '11144477735'),
+    ).toBe(true);
   });
 
   test('SICAF disabled → no SICAF result, behaves as before', async () => {
     const { service } = build({});
     const r = await service.consultar({ cnpj: CNPJ, userKeys: {} });
     expect(r.sicaf).toBeNull();
+    expect(r.socioMajoritario.pendenciaSicaf).toBeNull();
+  });
+
+  test('SICAF flags sócio pendency (keyless) → temPendencia true', async () => {
+    const sicaf = sicafStub({
+      ready: true,
+      result: sicafOk([
+        {
+          nome: 'MAJOR',
+          documento: '52998224725',
+          tipoDocumento: 'cpf',
+          participacaoSocietaria: 80,
+          possuiPendencia: true,
+        },
+      ]),
+    });
+    const { service } = build({ sicaf });
+    const r = await service.consultar({ cnpj: CNPJ, userKeys: {} });
+    expect(r.socioMajoritario.pendenciaSicaf).toBe(true);
+    expect(r.temPendencia).toBe(true);
+    expect(r.alertas.some((a) => /sócio majoritário possui pendência/i.test(a))).toBe(true);
   });
 });

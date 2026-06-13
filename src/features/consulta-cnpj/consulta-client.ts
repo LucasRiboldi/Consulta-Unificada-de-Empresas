@@ -1,4 +1,4 @@
-import type { ConsultarResponse } from '@/messaging/messages';
+import type { ConsultarResponse, BaixarSicafResponse } from '@/messaging/messages';
 
 export interface RuntimeMessenger {
   runtime: { sendMessage(message: unknown): Promise<ConsultarResponse> };
@@ -21,4 +21,10 @@ export function enviarConsulta(
       ? { socioMajoritarioCpf: args.socioMajoritarioCpf }
       : {}),
   });
+}
+
+/** Aciona o download dos documentos PDF do SICAF (Fase 2). */
+export function baixarSicaf(api: RuntimeMessenger, cnpj: string): Promise<BaixarSicafResponse> {
+  const enviar = api.runtime.sendMessage as (m: unknown) => Promise<BaixarSicafResponse>;
+  return enviar({ type: 'BAIXAR_SICAF', cnpj });
 }

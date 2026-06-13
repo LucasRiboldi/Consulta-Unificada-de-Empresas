@@ -8,51 +8,128 @@ import type {
 
 const SICAF_HOST = 'https://*.comprasnet.gov.br/*';
 
-/** Timeout para resposta do content script (ms). */
-const TIMEOUT_MS = 8_000;
+/** Tela do Quadro Societário — fonte mais limpa de sócios + dados da empresa (ver memória). */
+const QUADRO_URL =
+  'https://www3.comprasnet.gov.br/sicaf-web/private/consultas/consultarQuadroSocietario.jsf';
+
+const PRONTO_TIMEOUT_MS = 12_000;
+const EXTRACT_TIMEOUT_MS = 12_000;
+const POLL_INTERVALO_MS = 500;
+
+export const dormir = (ms: number): Promise<void> => new Promise((r) => setTimeout(r, ms));
+
+export type ChromeApi = typeof globalThis.chrome;
+
+export const SICAF_QUADRO_URL = QUADRO_URL;
+export const SICAF_SITUACAO_URL =
+  'https://www3.comprasnet.gov.br/sicaf-web/private/geral/consultarSituacaoFornecedor.jsf';
+export const SICAF_NIVEL2_URL =
+  'https://www3.comprasnet.gov.br/sicaf-web/private/consultas/consultarNivel2.jsf';
+
+/** Aguarda o content script responder (página carregada no host do Comprasnet). */
+export async function aguardarPronto(
+  cr: ChromeApi,
+  tabId: number,
+  timeoutMs: number,
+  pollMs: number,
+): Promise<boolean> {
+  const fim = Date.now() + timeoutMs;
+  while (Date.now() < fim) {
+    try {
+      const r = (await cr.tabs.sendMessage(tabId, { type: 'SICAF_PING' })) as { ready?: boolean };
+      if (r?.ready) return true;
+    } catch {
+      /* content script ainda não pronto ou página recarregando */
+    }
+    await dormir(pollMs);
+  }
+  return false;
+}
+
+/** Faz polling da extração até a página de resultado (com sócios/CNPJ) aparecer. */
+async function pollExtrair(
+  cr: ChromeApi,
+  tabId: number,
+  cnpj: string,
+  timeoutMs: number,
+  pollMs: number,
+): Promise<unknown | null> {
+  const fim = Date.now() + timeoutMs;
+  while (Date.now() < fim) {
+    try {
+      const r = (await cr.tabs.sendMessage(tabId, { type: 'EXTRACT_SICAF_DATA', cnpj })) as {
+        ok?: boolean;
+        data?: { cnpj?: string; socios?: unknown[] } | null;
+      };
+      const d = r?.data;
+      if (r?.ok && d && (d.cnpj === cnpj || (Array.isArray(d.socios) && d.socios.length > 0))) {
+        return d;
+      }
+    } catch {
+      /* página recarregando */
+    }
+    await dormir(pollMs);
+  }
+  return null;
+}
 
 const SocioSchema = z.object({
   nome: z.string(),
-  cpf: z.string().length(11),
-  qualificacao: z.string().nullable(),
-  dataEntradaSociedade: z.string().nullable(),
+  documento: z.string(),
+  tipoDocumento: z.enum(['cpf', 'cnpj']),
+  participacaoSocietaria: z.number().nullable(),
+  possuiPendencia: z.boolean().nullable(),
 });
 
 const SicafExtraidoSchema = z.object({
   cnpj: z.string().length(14),
-  razaoSocial: z.string(),
+  razaoSocial: z.string().nullable(),
   nomeFantasia: z.string().nullable(),
   uf: z.string().nullable(),
-  habilitado: z.boolean(),
+  habilitado: z.boolean().nullable(),
   statusHabilitacao: z.string().nullable(),
   socios: z.array(SocioSchema),
   seletoresVersao: z.string(),
 });
 
+export interface SicafSocio {
+  readonly nome: string;
+  /** Só dígitos: 11 (CPF) ou 14 (CNPJ). */
+  readonly documento: string;
+  readonly tipoDocumento: 'cpf' | 'cnpj';
+  /** Percentual de participação (ex.: 57.5). null = administrador sem participação. */
+  readonly participacaoSocietaria: number | null;
+  readonly possuiPendencia: boolean | null;
+}
+
 export interface SicafData {
   readonly cnpj: string;
-  readonly razaoSocial: string;
+  readonly razaoSocial: string | null;
   readonly nomeFantasia: string | null;
   readonly uf: string | null;
-  readonly habilitado: boolean;
+  readonly habilitado: boolean | null;
   readonly statusHabilitacao: string | null;
-  /** Sócios com CPF completo — diferencial do SICAF vs BrasilAPI. */
-  readonly socios: readonly {
-    readonly nome: string;
-    readonly cpf: string;
-    readonly qualificacao: string | null;
-    readonly dataEntradaSociedade: string | null;
-  }[];
+  /** Sócios com CPF completo + participação — diferencial do SICAF vs BrasilAPI. */
+  readonly socios: readonly SicafSocio[];
   readonly seletoresVersao: string;
 }
 
 interface Deps {
   /** Injete chrome para testes. */
   readonly chrome?: typeof globalThis.chrome;
+  /** Override de timeouts (ms) — usado em testes para acelerar. */
+  readonly timeouts?: {
+    readonly prontoMs?: number;
+    readonly extractMs?: number;
+    readonly pollMs?: number;
+  };
 }
 
 export function createSicafProvider(deps: Deps = {}): ConsultaProvider<SicafData> {
   const cr = deps.chrome ?? globalThis.chrome;
+  const prontoMs = deps.timeouts?.prontoMs ?? PRONTO_TIMEOUT_MS;
+  const extractMs = deps.timeouts?.extractMs ?? EXTRACT_TIMEOUT_MS;
+  const pollMs = deps.timeouts?.pollMs ?? POLL_INTERVALO_MS;
   const suporta: readonly SujeitoSuportado[] = ['pj'];
 
   const meta = {
@@ -73,88 +150,53 @@ export function createSicafProvider(deps: Deps = {}): ConsultaProvider<SicafData
 
     async consultar(ctx: ConsultaContext): Promise<ProviderResult<SicafData>> {
       const fetchedAt = new Date().toISOString();
+      const erro = (error: string): ProviderResult<SicafData> => ({
+        providerId: meta.id,
+        ok: false,
+        error,
+        fetchedAt,
+      });
 
-      if (ctx.sujeito.tipo !== 'pj') {
-        return { providerId: meta.id, ok: false, error: 'Fonte aceita apenas PJ.', fetchedAt };
-      }
-
+      if (ctx.sujeito.tipo !== 'pj') return erro('Fonte aceita apenas PJ.');
       const cnpj = ctx.sujeito.cnpj.replace(/\D/g, '');
 
-      // Localiza aba aberta em comprasnet.gov.br
-      let tabs: chrome.tabs.Tab[];
+      // Abre uma aba de trabalho em segundo plano na tela do Quadro Societário.
+      // A sessão logada no Comprasnet (gov.br) é compartilhada no perfil do Chrome.
+      let tabId: number | undefined;
       try {
-        tabs = await cr.tabs.query({ url: SICAF_HOST });
+        const tab = await cr.tabs.create({ url: QUADRO_URL, active: false });
+        tabId = tab.id ?? undefined;
       } catch {
-        return {
-          providerId: meta.id,
-          ok: false,
-          error: 'Permissão de host não concedida. Ative o SICAF nas opções.',
-          fetchedAt,
-        };
+        return erro('Permissão do Comprasnet não concedida. Ative o SICAF nas opções.');
       }
+      if (tabId === undefined) return erro('Não foi possível abrir a aba do SICAF.');
 
-      if (tabs.length === 0) {
-        return {
-          providerId: meta.id,
-          ok: false,
-          error: 'Nenhuma aba do Comprasnet encontrada. Abra e faça login no SICAF.',
-          fetchedAt,
-        };
+      try {
+        if (!(await aguardarPronto(cr, tabId, prontoMs, pollMs))) {
+          return erro(
+            'Não foi possível acessar o SICAF. Faça login no Comprasnet (gov.br) e tente novamente.',
+          );
+        }
+
+        // Preenche o CNPJ e dispara a pesquisa (a submissão recarrega a página).
+        await cr.tabs
+          .sendMessage(tabId, { type: 'SICAF_FILL_SEARCH', cnpj })
+          .catch(() => undefined);
+        await aguardarPronto(cr, tabId, prontoMs, pollMs);
+
+        const data = await pollExtrair(cr, tabId, cnpj, extractMs, pollMs);
+        if (!data) return erro('Tempo esgotado ao ler os dados do SICAF.');
+
+        const parsed = SicafExtraidoSchema.safeParse(data);
+        if (!parsed.success) return erro('Dados extraídos inválidos — seletores desatualizados?');
+        if (parsed.data.cnpj && parsed.data.cnpj !== cnpj) {
+          return erro(`CNPJ da página (${parsed.data.cnpj}) difere do consultado (${cnpj}).`);
+        }
+
+        return { providerId: meta.id, ok: true, data: parsed.data as SicafData, fetchedAt };
+      } finally {
+        void cr.tabs.remove(tabId).catch(() => undefined);
       }
-
-      const tabId = tabs[0]!.id;
-      if (tabId === undefined) {
-        return { providerId: meta.id, ok: false, error: 'ID de aba inválido.', fetchedAt };
-      }
-
-      // Envia pedido ao content script com timeout
-      const response = await Promise.race([
-        cr.tabs.sendMessage(tabId, { type: 'EXTRACT_SICAF_DATA', cnpj }),
-        new Promise<null>((resolve) => setTimeout(() => resolve(null), TIMEOUT_MS)),
-      ]);
-
-      if (response === null) {
-        return {
-          providerId: meta.id,
-          ok: false,
-          error: `Tempo esgotado (${TIMEOUT_MS / 1000}s). Certifique-se de estar na página do fornecedor no SICAF.`,
-          fetchedAt,
-        };
-      }
-
-      const res = response as { ok: boolean; data?: unknown; error?: string };
-      if (!res.ok) {
-        return {
-          providerId: meta.id,
-          ok: false,
-          error: res.error ?? 'Erro no content script.',
-          fetchedAt,
-        };
-      }
-
-      const parsed = SicafExtraidoSchema.safeParse(res.data);
-      if (!parsed.success) {
-        return {
-          providerId: meta.id,
-          ok: false,
-          error: 'Dados extraídos inválidos — seletores desatualizados?',
-          fetchedAt,
-        };
-      }
-
-      const raw = parsed.data;
-
-      // Valida que o CNPJ da página bate com o consultado
-      if (raw.cnpj !== cnpj) {
-        return {
-          providerId: meta.id,
-          ok: false,
-          error: `CNPJ da página (${raw.cnpj}) difere do consultado (${cnpj}). Navegue até a página correta.`,
-          fetchedAt,
-        };
-      }
-
-      return { providerId: meta.id, ok: true, data: raw as SicafData, fetchedAt };
     },
   };
 }

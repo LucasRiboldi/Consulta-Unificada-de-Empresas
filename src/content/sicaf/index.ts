@@ -1,39 +1,86 @@
 /**
  * Content script do SICAF — injeta em *.comprasnet.gov.br.
- * Recebe pedido de extração do service worker e responde com os dados da página atual.
+ * Orquestrado pelo service worker (sicaf.provider): responde a PING (pronto),
+ * preenche+pesquisa o CNPJ (FILL_SEARCH) e extrai os dados da página (EXTRACT).
+ * Tudo determinístico — sem IA.
  */
 
-import { extractSicafData } from './selectors';
+import {
+  extractSicafData,
+  preencherCnpjEPesquisar,
+  listarRelatorios,
+  clicarPorId,
+  clicarContratoSocial,
+} from './selectors';
 
-export interface ExtractSicafRequest {
-  readonly type: 'EXTRACT_SICAF_DATA';
-  readonly cnpj: string; // CNPJ esperado (14 dígitos) para validação cruzada
+export type SicafMessage =
+  | { readonly type: 'SICAF_PING' }
+  | { readonly type: 'SICAF_FILL_SEARCH'; readonly cnpj: string }
+  | { readonly type: 'EXTRACT_SICAF_DATA'; readonly cnpj?: string }
+  | { readonly type: 'SICAF_LISTAR_RELATORIOS' }
+  | { readonly type: 'SICAF_CLICAR'; readonly id: string }
+  | { readonly type: 'SICAF_CLICAR_CONTRATO' };
+
+function lerString(message: unknown, chave: string): string | undefined {
+  if (typeof message !== 'object' || message === null) return undefined;
+  const v = (message as Record<string, unknown>)[chave];
+  return typeof v === 'string' ? v : undefined;
 }
 
-export type ExtractSicafResponse =
-  | { readonly ok: true; readonly data: ReturnType<typeof extractSicafData>; readonly url: string }
-  | { readonly ok: false; readonly error: string };
+function tipo(message: unknown): string | undefined {
+  return lerString(message, 'type');
+}
 
 chrome.runtime.onMessage.addListener(
-  (message: unknown, _sender, sendResponse: (r: ExtractSicafResponse) => void) => {
-    if (
-      typeof message !== 'object' ||
-      message === null ||
-      (message as Record<string, unknown>)['type'] !== 'EXTRACT_SICAF_DATA'
-    ) {
-      return false;
-    }
+  (message: unknown, _sender, sendResponse: (r: unknown) => void) => {
+    switch (tipo(message)) {
+      case 'SICAF_PING':
+        sendResponse({ ok: true, ready: true, url: location.href });
+        return false;
 
-    try {
-      const data = extractSicafData(document);
-      sendResponse({ ok: true, data, url: location.href });
-    } catch (e) {
-      sendResponse({
-        ok: false,
-        error: e instanceof Error ? e.message : 'Erro na extração.',
-      });
-    }
+      case 'SICAF_FILL_SEARCH':
+        try {
+          sendResponse(preencherCnpjEPesquisar(lerString(message, 'cnpj') ?? '', document));
+        } catch (e) {
+          sendResponse({ ok: false, error: e instanceof Error ? e.message : 'Erro ao pesquisar.' });
+        }
+        return false;
 
-    return false; // resposta síncrona
+      case 'EXTRACT_SICAF_DATA':
+        try {
+          const data = extractSicafData(document, lerString(message, 'cnpj'));
+          sendResponse({ ok: true, data, url: location.href });
+        } catch (e) {
+          sendResponse({ ok: false, error: e instanceof Error ? e.message : 'Erro na extração.' });
+        }
+        return false;
+
+      case 'SICAF_LISTAR_RELATORIOS':
+        try {
+          sendResponse({ ok: true, relatorios: listarRelatorios(document) });
+        } catch (e) {
+          sendResponse({ ok: false, error: e instanceof Error ? e.message : 'Erro ao listar.' });
+        }
+        return false;
+
+      case 'SICAF_CLICAR':
+        try {
+          sendResponse(clicarPorId(lerString(message, 'id') ?? '', document));
+        } catch (e) {
+          sendResponse({ ok: false, error: e instanceof Error ? e.message : 'Erro ao clicar.' });
+        }
+        return false;
+
+      case 'SICAF_CLICAR_CONTRATO':
+        try {
+          sendResponse(clicarContratoSocial(document));
+        } catch (e) {
+          sendResponse({ ok: false, error: e instanceof Error ? e.message : 'Erro ao clicar.' });
+        }
+        return false;
+
+      default:
+        return false;
+    }
   },
 );

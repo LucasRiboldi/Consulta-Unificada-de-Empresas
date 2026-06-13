@@ -10,8 +10,20 @@ const fakeResultado = {
 function build(consultarImpl?: (input: unknown) => Promise<ResultadoConsulta>) {
   const consultar = vi.fn(consultarImpl ?? (async () => fakeResultado));
   const loadUserKeys = vi.fn(async () => ({ transparencia: 'KEY' }));
-  const router = createMessageRouter({ service: { consultar }, loadUserKeys });
-  return { router, consultar, loadUserKeys };
+  const loadSicafEnabled = vi.fn(async () => false);
+  const sicafMeta = {
+    id: 'sicaf' as const,
+    label: 'sicaf',
+    access: 'content-script' as const,
+    enabled: false,
+  };
+  const router = createMessageRouter({
+    service: { consultar },
+    loadUserKeys,
+    loadSicafEnabled,
+    sicafMeta,
+  });
+  return { router, consultar, loadUserKeys, loadSicafEnabled, sicafMeta };
 }
 
 describe('message router', () => {

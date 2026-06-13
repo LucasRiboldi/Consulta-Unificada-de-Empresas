@@ -11,6 +11,10 @@ function deps(over: Partial<OptionsDeps> = {}): OptionsDeps {
     loadRetencao: vi.fn(async () => 90),
     saveRetencao: vi.fn(async () => {}),
     clearHistorico: vi.fn(async () => {}),
+    loadSicafEnabled: vi.fn(async () => false),
+    saveSicafEnabled: vi.fn(async () => {}),
+    requestSicafPermission: vi.fn(async () => true),
+    revokeSicafPermission: vi.fn(async () => {}),
     ...over,
   };
 }

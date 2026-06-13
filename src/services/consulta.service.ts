@@ -5,7 +5,7 @@ import type { ConsultaProvider, ProviderResult } from '@/providers/provider.type
 import type { BrasilApiData } from '@/providers/brasilapi.provider';
 import type { TcuConsolidadaData } from '@/providers/tcu-consolidada.provider';
 import type { TransparenciaData } from '@/providers/transparencia.provider';
-import type { SicafData } from '@/providers/sicaf.provider';
+import type { SicafData, SicafSocio } from '@/providers/sicaf.provider';
 import type { SelecaoSocioMajoritario } from '@/shared/types/socio';
 import type { ProviderId } from '@/providers/provider.types';
 
@@ -40,6 +40,18 @@ export interface ConsultaServiceDeps {
   readonly sicaf: ConsultaProvider<SicafData>;
 }
 
+/** CPF do sócio de maior participação no SICAF (ignora administradores sem % e sócios PJ). */
+function cpfMajoritarioDoSicaf(socios: readonly SicafSocio[]): string | undefined {
+  const elegiveis = socios.filter(
+    (s) => s.tipoDocumento === 'cpf' && s.participacaoSocietaria !== null,
+  );
+  if (elegiveis.length === 0) return undefined;
+  const maior = elegiveis.reduce((a, s) =>
+    (s.participacaoSocietaria ?? 0) > (a.participacaoSocietaria ?? 0) ? s : a,
+  );
+  return maior.documento;
+}
+
 export function createConsultaService(deps: ConsultaServiceDeps) {
   return {
     async consultar(input: ConsultaInput): Promise<ResultadoConsulta> {
@@ -72,16 +84,33 @@ export function createConsultaService(deps: ConsultaServiceDeps) {
         alertas.push('Confirme o sócio majoritário manualmente (percentual não disponível).');
       }
 
-      // Sócio majoritário: consulta de PF (art. 12) somente com CPF válido + chave.
+      // Sócio majoritário (art. 12): CPF manual tem prioridade; senão, identificado
+      // automaticamente pelo SICAF (maior participação societária).
+      let cpfMajoritario = input.socioMajoritarioCpf;
+      let origemCpf: 'manual' | 'sicaf' | null = cpfMajoritario !== undefined ? 'manual' : null;
+
+      if (cpfMajoritario === undefined && sicafResult?.ok && sicafResult.data) {
+        const auto = cpfMajoritarioDoSicaf(sicafResult.data.socios);
+        if (auto !== undefined) {
+          cpfMajoritario = auto;
+          origemCpf = 'sicaf';
+        }
+      }
+
       let cpfInformado: string | null = null;
       let sancoesSocio: ProviderResult<TransparenciaData> | null = null;
 
-      if (input.socioMajoritarioCpf === undefined) {
+      if (cpfMajoritario === undefined) {
         alertas.push('CPF do sócio majoritário não informado — consulta do art. 12 incompleta.');
-      } else if (!isValidCpf(input.socioMajoritarioCpf)) {
+      } else if (!isValidCpf(cpfMajoritario)) {
         alertas.push('CPF do sócio majoritário inválido — consulta do art. 12 não realizada.');
       } else {
-        cpfInformado = normalizeCpf(input.socioMajoritarioCpf);
+        cpfInformado = normalizeCpf(cpfMajoritario);
+        if (origemCpf === 'sicaf') {
+          alertas.push(
+            'Sócio majoritário identificado automaticamente pelo SICAF (maior participação).',
+          );
+        }
         const ctxPf = { ...baseCtx, sujeito: { tipo: 'pf' as const, cpf: cpfInformado } };
         sancoesSocio = await deps.transparencia.consultar(ctxPf);
         if (!sancoesSocio.ok) {

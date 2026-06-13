@@ -9,6 +9,7 @@ import type {
 import type { BrasilApiData } from '@/providers/brasilapi.provider';
 import type { TcuConsolidadaData } from '@/providers/tcu-consolidada.provider';
 import type { TransparenciaData } from '@/providers/transparencia.provider';
+import type { SicafData } from '@/providers/sicaf.provider';
 
 type Spy<T> = ConsultaProvider<T> & { calls: ConsultaContext[] };
 
@@ -80,10 +81,59 @@ const socio = (nome: string, qualificacao = 'Sócio') => ({
   dataEntradaSociedade: null,
 });
 
+const sicafSocio = (
+  nome: string,
+  documento: string,
+  participacaoSocietaria: number | null,
+): SicafData['socios'][number] => ({
+  nome,
+  documento,
+  tipoDocumento: documento.length === 14 ? 'cnpj' : 'cpf',
+  participacaoSocietaria,
+  possuiPendencia: false,
+});
+
+function sicafOk(socios: SicafData['socios']): ProviderResult<SicafData> {
+  return {
+    providerId: 'sicaf',
+    ok: true,
+    fetchedAt: 'now',
+    data: {
+      cnpj: CNPJ,
+      razaoSocial: 'EMPRESA X',
+      nomeFantasia: null,
+      uf: 'SP',
+      habilitado: true,
+      statusHabilitacao: 'habilitado',
+      socios,
+      seletoresVersao: '2.0.0',
+    },
+  };
+}
+
+/** Stub do SICAF: por padrão NÃO está pronto (mesmo comportamento de antes). */
+function sicafStub(
+  opts: { ready?: boolean; result?: ProviderResult<SicafData> } = {},
+): Spy<SicafData> {
+  const calls: ConsultaContext[] = [];
+  const ready = opts.ready ?? false;
+  return {
+    meta: { id: 'sicaf' as never, label: 'sicaf', access: 'content-script', enabled: ready },
+    suporta: ['pj'],
+    isReady: () => ready,
+    consultar: async (ctx) => {
+      calls.push(ctx);
+      return opts.result ?? sicafOk([]);
+    },
+    calls,
+  };
+}
+
 function build(over: {
   brasil?: ProviderResult<BrasilApiData>;
   tcu?: ProviderResult<TcuConsolidadaData>;
   transp?: ProviderResult<TransparenciaData>;
+  sicaf?: Spy<SicafData>;
 }) {
   const brasilapi = stub<BrasilApiData>('brasilapi', ['pj'], over.brasil ?? brasilOk([socio('A')]));
   const tcuP = stub<TcuConsolidadaData>('tcu-consolidada', ['pj'], over.tcu ?? tcu(false));
@@ -92,8 +142,9 @@ function build(over: {
     ['pf', 'pj'],
     over.transp ?? transp(false),
   );
-  const service = createConsultaService({ brasilapi, tcu: tcuP, transparencia });
-  return { service, brasilapi, tcuP, transparencia };
+  const sicaf = over.sicaf ?? sicafStub();
+  const service = createConsultaService({ brasilapi, tcu: tcuP, transparencia, sicaf });
+  return { service, brasilapi, tcuP, transparencia, sicaf };
 }
 
 describe('ConsultaService', () => {
@@ -169,5 +220,53 @@ describe('ConsultaService', () => {
     const { service } = build({});
     const r = await service.consultar({ cnpj: CNPJ, userKeys: {} });
     expect(r.temPendencia).toBe(false);
+  });
+
+  test('SICAF auto-identifies the majority partner (highest %) for art. 12', async () => {
+    const sicaf = sicafStub({
+      ready: true,
+      result: sicafOk([
+        sicafSocio('MENOR', '11144477735', 42.5),
+        sicafSocio('MAIOR', '52998224725', 57.5),
+      ]),
+    });
+    const { service, transparencia } = build({ sicaf });
+    const r = await service.consultar({ cnpj: CNPJ, userKeys: { transparencia: 'KEY' } });
+    // Consulta o art. 12 com o CPF do sócio de MAIOR participação — sem entrada manual.
+    expect(transparencia.calls[0]?.sujeito).toEqual({ tipo: 'pf', cpf: '52998224725' });
+    expect(r.alertas.some((a) => /automaticamente/i.test(a))).toBe(true);
+  });
+
+  test('SICAF ignores administrators without participation (%)', async () => {
+    const sicaf = sicafStub({
+      ready: true,
+      result: sicafOk([
+        sicafSocio('SOCIO UNICO', '52998224725', 100),
+        sicafSocio('ADMIN SEM COTA', '11144477735', null),
+      ]),
+    });
+    const { service, transparencia } = build({ sicaf });
+    await service.consultar({ cnpj: CNPJ, userKeys: { transparencia: 'KEY' } });
+    expect(transparencia.calls[0]?.sujeito).toEqual({ tipo: 'pf', cpf: '52998224725' });
+  });
+
+  test('manual CPF takes priority over SICAF auto-detection', async () => {
+    const sicaf = sicafStub({
+      ready: true,
+      result: sicafOk([sicafSocio('SICAF', '52998224725', 90)]),
+    });
+    const { service, transparencia } = build({ sicaf });
+    await service.consultar({
+      cnpj: CNPJ,
+      userKeys: { transparencia: 'KEY' },
+      socioMajoritarioCpf: '111.444.777-35',
+    });
+    expect(transparencia.calls[0]?.sujeito).toEqual({ tipo: 'pf', cpf: '11144477735' });
+  });
+
+  test('SICAF disabled → no SICAF result, behaves as before', async () => {
+    const { service } = build({});
+    const r = await service.consultar({ cnpj: CNPJ, userKeys: {} });
+    expect(r.sicaf).toBeNull();
   });
 });

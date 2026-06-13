@@ -13,3 +13,15 @@ export type ConsultarRequest = z.infer<typeof ConsultarRequestSchema>;
 export type ConsultarResponse =
   | { readonly ok: true; readonly resultado: ResultadoConsulta }
   | { readonly ok: false; readonly error: string };
+
+/** Pedido para baixar os documentos PDF do SICAF (Fase 2). */
+export const BaixarSicafRequestSchema = z.object({
+  type: z.literal('BAIXAR_SICAF'),
+  cnpj: z.string(),
+});
+
+export type BaixarSicafRequest = z.infer<typeof BaixarSicafRequestSchema>;
+
+export type BaixarSicafResponse =
+  | { readonly ok: true; readonly baixados: string[]; readonly pulados: string[] }
+  | { readonly ok: false; readonly error: string };

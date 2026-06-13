@@ -5,8 +5,10 @@ import { createTransparenciaProvider } from '@/providers/transparencia.provider'
 import { createSicafProvider } from '@/providers/sicaf.provider';
 import { createMessageRouter } from './router';
 import { setupContextMenu, type ContextMenuApi } from './context-menu';
+import { baixarDocumentosSicaf } from './sicaf-downloader';
 import { loadUserKeys, loadSicafEnabled, setPendingCnpj } from '@/storage/settings.store';
 import { normalizeCnpj, isValidCnpj } from '@/shared/utils/cnpj';
+import { BaixarSicafRequestSchema } from '@/messaging/messages';
 
 const sicafProvider = createSicafProvider();
 
@@ -26,6 +28,19 @@ const router = createMessageRouter({
 
 // Mensagens do popup/options.
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  // Fase 2: download de documentos do SICAF (só com a fonte habilitada).
+  const baixar = BaixarSicafRequestSchema.safeParse(message);
+  if (baixar.success) {
+    void loadSicafEnabled().then((enabled) => {
+      if (!enabled) {
+        sendResponse({ ok: false, error: 'Ative o SICAF nas opções para baixar documentos.' });
+        return;
+      }
+      void baixarDocumentosSicaf(baixar.data.cnpj).then(sendResponse);
+    });
+    return true; // resposta assíncrona
+  }
+
   router.handle(message).then(sendResponse);
   return true; // resposta assíncrona
 });

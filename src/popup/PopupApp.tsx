@@ -3,7 +3,11 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { isValidCnpj, normalizeCnpj } from '@/shared/utils/cnpj';
-import { enviarConsulta, type RuntimeMessenger } from '@/features/consulta-cnpj/consulta-client';
+import {
+  enviarConsulta,
+  baixarSicaf,
+  type RuntimeMessenger,
+} from '@/features/consulta-cnpj/consulta-client';
 import {
   buildConsultaView,
   type ConsultaView,
@@ -40,6 +44,29 @@ export function PopupApp({ messenger, initialCnpj = '', historico, onExportarPdf
   const [view, setView] = useState<ConsultaView | null>(null);
   const [resultado, setResultado] = useState<ResultadoConsulta | null>(null);
   const [reloadHistorico, setReloadHistorico] = useState(0);
+  const [baixando, setBaixando] = useState(false);
+  const [downloadMsg, setDownloadMsg] = useState<string | null>(null);
+
+  async function onBaixarSicaf(): Promise<void> {
+    setBaixando(true);
+    setDownloadMsg(null);
+    try {
+      const r = await baixarSicaf(messenger, normalizeCnpj(cnpj));
+      if (r.ok) {
+        const ok = r.baixados.length
+          ? `Baixados: ${r.baixados.join(', ')}.`
+          : 'Nenhum documento disponível.';
+        const skip = r.pulados.length ? ` Sem dados: ${r.pulados.join(', ')}.` : '';
+        setDownloadMsg(ok + skip);
+      } else {
+        setDownloadMsg(r.error);
+      }
+    } catch (e) {
+      setDownloadMsg(e instanceof Error ? e.message : 'Erro ao baixar documentos.');
+    } finally {
+      setBaixando(false);
+    }
+  }
 
   async function onConsultar(): Promise<void> {
     const digits = normalizeCnpj(cnpj);
@@ -155,6 +182,25 @@ export function PopupApp({ messenger, initialCnpj = '', historico, onExportarPdf
             >
               Exportar PDF
             </Button>
+          )}
+
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full"
+            disabled={baixando}
+            onClick={() => void onBaixarSicaf()}
+          >
+            {baixando ? 'Baixando documentos…' : 'Baixar documentos do SICAF (PDF)'}
+          </Button>
+
+          {downloadMsg && (
+            <p
+              role="status"
+              className="rounded-md bg-slate-50 p-2 text-xs text-slate-700 dark:bg-slate-800 dark:text-slate-300"
+            >
+              {downloadMsg}
+            </p>
           )}
 
           <ul className="space-y-1 text-sm">

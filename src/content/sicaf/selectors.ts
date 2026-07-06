@@ -268,16 +268,33 @@ export function preencherCnpjEPesquisar(
   return { ok: true };
 }
 
+/** Rótulos dos relatórios do SICAF (tela "Situação do Fornecedor - Resultado"). */
+const ROTULO_RELATORIO =
+  /n[íi]vel\s+[ivx]+|ocorr[êe]nc|situa[çc][ãa]o do fornecedor|credenciamento|habilita[çc][ãa]o jur|regularidade fiscal|qualifica[çc][ãa]o (?:t[ée]cnica|econ[óo]mic)/i;
+
 /**
  * Lista os botões de relatório (verdes) da área de Resultado da tela "Situação do
- * Fornecedor". Detecta pelos ids JSF do bloco de resultado (`...:fornecedores:...`),
- * evitando capturar itens de menu com o mesmo texto.
+ * Fornecedor". Detecta primeiro pelos ids JSF do bloco de resultado (`...:fornecedores:...`).
+ * Como os ids JSF variam conforme a árvore de componentes, faz um fallback por RÓTULO
+ * (Níveis I–VI, Ocorrências etc.) quando o filtro por id não encontra nada — restrito a
+ * elementos clicáveis COM id (necessário para `clicarPorId`) e sem duplicar.
  */
 export function listarRelatorios(doc: Document = document): { id: string; texto: string }[] {
   const els = Array.from(doc.querySelectorAll<HTMLElement>('a[id], button[id]'));
-  return els
+  const porId = els
     .filter((e) => /:fornecedores:/.test(e.id) && texto(e).length > 0)
     .map((e) => ({ id: e.id, texto: texto(e) }));
+  if (porId.length > 0) return porId;
+
+  const seen = new Set<string>();
+  const out: { id: string; texto: string }[] = [];
+  for (const e of els) {
+    const t = texto(e);
+    if (!e.id || !t || !ROTULO_RELATORIO.test(t) || seen.has(e.id)) continue;
+    seen.add(e.id);
+    out.push({ id: e.id, texto: t });
+  }
+  return out;
 }
 
 /** Clica um elemento por id (ex.: botão de relatório). */

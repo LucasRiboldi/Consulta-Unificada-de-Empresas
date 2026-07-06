@@ -62,5 +62,5 @@ Para cada fonte, antes de implementar:
 - `brasilapi.provider.ts` — dados cadastrais + QSA (identifica sócio majoritário).
 - `tcu-consolidada.provider.ts` — **primária** de sanções (PJ).
 - `transparencia.provider.ts` — CEIS/CNEP por **CPF** do sócio majoritário (BYOK) + fallback PJ.
-- `sicaf-dom.provider.ts` — coordena com `src/content/sicaf/`.
+- `sicaf.provider.ts` — coordena com `src/content/sicaf/` (content script + selectors).
 - `provider.types.ts` — interface `ConsultaProvider` (sujeito PJ ou PF).

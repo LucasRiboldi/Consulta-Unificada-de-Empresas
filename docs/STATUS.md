@@ -1,6 +1,6 @@
 # STATUS — Registro de continuação
 
-> Atualizado: 2026-06-10. Use este arquivo para retomar o projeto do ponto exato.
+> Atualizado: 2026-07-06. Use este arquivo para retomar o projeto do ponto exato.
 
 ## Onde estamos
 
@@ -55,15 +55,23 @@ A BrasilAPI **mascara o CPF** do sócio (`***571038**`) e **não traz percentual
        Certidão oficial do TCU anexada ao relatório (`fetchCertidaoPdfBase64` +
        `anexarCertidaoOficial`; busca com `seEmitirPDF=true` na exportação; falha
        na emissão nunca bloqueia o download). ✅
-7. [ ] SICAF content script — **somente após resolver R-A (termos de uso do Comprasnet)**. BLOQUEADA.
+7. [x] SICAF content script — provider + `src/content/sicaf/` (index+selectors), toggle nas ✅
+       opções (feature flag), leitura dinâmica do storage, identificação autônoma do sócio
+       majoritário e download de documentos (`sicaf-downloader`). Sanções CEIS/CNEP/inidôneos
+       da empresa **e do sócio** integradas ao `consulta.service`/`view-model`.
+       ⚠️ Habilitado atrás de flag; **R-A (termos de uso do Comprasnet) segue pendente de
+       validação jurídica antes de ligar por padrão / publicar promovendo o recurso.**
 8. [x] Qualidade + CI + docs Fase 7. ✅
        ESLint/Prettier/Husky/lint-staged; GitHub Actions (lint+format+typecheck+coverage+build);
        CodeQL; Dependabot (actions) + Renovate (npm); SECURITY/CONTRIBUTING/CHANGELOG/CODE_OF_CONDUCT.
 
 ## Pendências para "pronto para produção"
 
-- [ ] **R-A** (jurídico) para destravar a fatia 7 (SICAF).
-- [ ] Ícones reais (hoje placeholders em `public/icons`).
+- [ ] **R-A** (jurídico): validação dos termos de uso do Comprasnet para ligar o SICAF por
+      padrão. O código já existe atrás de feature flag (fatia 7 concluída); falta o parecer.
+- [ ] Ícones reais (hoje gerados por `scripts/gen-icons.mjs`, sem identidade visual definitiva).
+- [ ] Rodar `npm install` + suíte completa (tsc/vitest/build/e2e) neste ambiente — `node_modules`
+      não está instalado, então os números de cobertura/testes abaixo não foram reconfirmados.
 - [x] Testes E2E (Playwright) carregando a extensão num Chromium real. ✅ (2026-06-10)
       `npm run test:e2e` (4 testes: SW, popup, validação, options). Canal **msedge**:
       o Chrome de marca 137+ removeu `--load-extension` e o Chromium do Playwright
@@ -77,7 +85,8 @@ A BrasilAPI **mascara o CPF** do sócio (`***571038**`) e **não traz percentual
 
 ## Riscos abertos
 
-- **R-A** — termos de uso do SICAF/Comprasnet vs. leitura de DOM (bloqueia a fatia 7).
+- **R-A** — termos de uso do SICAF/Comprasnet vs. leitura de DOM. Fatia 7 já implementada
+  atrás de feature flag; o risco segue aberto para **ligar por padrão / promover o recurso**.
 - **R-C** — cotas/rate-limit do Portal da Transparência e TCU Consolidada → cache + rate-limit client-side.
 - **R-E** — identificação do sócio majoritário pelo QSA (percentual nem sempre exposto).
 

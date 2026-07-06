@@ -23,6 +23,7 @@ function resultado(): ResultadoConsulta {
       },
     },
     sancoesEmpresa: { providerId: 'tcu-consolidada', ok: false, fetchedAt: 'now', error: 'x' },
+    sancoesEmpresaTransparencia: null,
     socioMajoritario: {
       selecao: {
         candidato: null,
@@ -32,7 +33,9 @@ function resultado(): ResultadoConsulta {
       },
       cpfInformado: null,
       sancoesSocio: null,
+      pendenciaSicaf: null,
     },
+    sicaf: null,
     temPendencia: false,
     alertas: [],
   };

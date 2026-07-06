@@ -132,6 +132,7 @@ describe('buildConsultaView', () => {
             fetchedAt: 'now',
             data: { codigoConsultado: 'x', temSancao: false, ceis: [], cnep: [] },
           },
+          pendenciaSicaf: null,
         },
       }),
     );

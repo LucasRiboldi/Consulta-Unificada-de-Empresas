@@ -40,11 +40,14 @@ const resultado: ResultadoConsulta = {
       certidaoPdfBase64: null,
     },
   },
+  sancoesEmpresaTransparencia: null,
   socioMajoritario: {
     selecao: { candidato: null, requerConfirmacaoManual: false, confianca: 'nenhuma', motivo: '' },
     cpfInformado: null,
     sancoesSocio: null,
+    pendenciaSicaf: null,
   },
+  sicaf: null,
   temPendencia: false,
   alertas: ['CPF do sócio majoritário não informado — consulta do art. 12 incompleta.'],
 };

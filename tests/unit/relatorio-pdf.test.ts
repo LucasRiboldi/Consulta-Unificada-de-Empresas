@@ -37,6 +37,7 @@ function resultado(over: Partial<ResultadoConsulta> = {}): ResultadoConsulta {
         certidaoPdfBase64: null,
       },
     },
+    sancoesEmpresaTransparencia: null,
     socioMajoritario: {
       selecao: {
         candidato: null,
@@ -46,7 +47,9 @@ function resultado(over: Partial<ResultadoConsulta> = {}): ResultadoConsulta {
       },
       cpfInformado: null,
       sancoesSocio: null,
+      pendenciaSicaf: null,
     },
+    sicaf: null,
     temPendencia: false,
     alertas: ['CPF do sócio majoritário não informado — consulta do art. 12 incompleta.'],
     ...over,
@@ -106,6 +109,7 @@ describe('gerarRelatorioPdf', () => {
             fetchedAt: 'now',
             data: { codigoConsultado: 'x', temSancao: false, ceis: [], cnep: [] },
           },
+          pendenciaSicaf: null,
         },
       }),
     );

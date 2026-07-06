@@ -70,8 +70,10 @@ A BrasilAPI **mascara o CPF** do sócio (`***571038**`) e **não traz percentual
 - [ ] **R-A** (jurídico): validação dos termos de uso do Comprasnet para ligar o SICAF por
       padrão. O código já existe atrás de feature flag (fatia 7 concluída); falta o parecer.
 - [ ] Ícones reais (hoje gerados por `scripts/gen-icons.mjs`, sem identidade visual definitiva).
-- [ ] Rodar `npm install` + suíte completa (tsc/vitest/build/e2e) neste ambiente — `node_modules`
-      não está instalado, então os números de cobertura/testes abaixo não foram reconfirmados.
+- [x] Suíte reconfirmada em 2026-07-06: `tsc --noEmit` limpo, **127/127 testes** (vitest),
+      `npm run build` gera `dist/` carregável. Correção: 5 fixtures não tinham os campos
+      obrigatórios `pendenciaSicaf`/`sancoesEmpresaTransparencia`/`sicaf` (regressão de tipo
+      da feature SICAF) — ajustados. E2E Playwright não reexecutado (requer navegador/canal).
 - [x] Testes E2E (Playwright) carregando a extensão num Chromium real. ✅ (2026-06-10)
       `npm run test:e2e` (4 testes: SW, popup, validação, options). Canal **msedge**:
       o Chrome de marca 137+ removeu `--load-extension` e o Chromium do Playwright

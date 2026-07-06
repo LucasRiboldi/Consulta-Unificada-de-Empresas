@@ -26,6 +26,10 @@ interface PopupAppProps {
   readonly initialCnpj?: string;
   readonly historico?: PopupHistorico;
   readonly onExportarPdf?: (resultado: ResultadoConsulta) => void | Promise<void>;
+  /** Se o SICAF está ativado nas opções. Quando false, o download fica bloqueado. */
+  readonly sicafEnabled?: boolean;
+  /** Abre a página de opções (para o usuário ativar o SICAF). */
+  readonly onAbrirOpcoes?: () => void;
 }
 
 const statusLabel: Record<FonteStatus, string> = {
@@ -36,7 +40,14 @@ const statusLabel: Record<FonteStatus, string> = {
   na: 'Não consultado',
 };
 
-export function PopupApp({ messenger, initialCnpj = '', historico, onExportarPdf }: PopupAppProps) {
+export function PopupApp({
+  messenger,
+  initialCnpj = '',
+  historico,
+  onExportarPdf,
+  sicafEnabled = true,
+  onAbrirOpcoes,
+}: PopupAppProps) {
   const [cnpj, setCnpj] = useState(initialCnpj);
   const [cpf, setCpf] = useState('');
   const [erro, setErro] = useState<string | null>(null);
@@ -188,11 +199,35 @@ export function PopupApp({ messenger, initialCnpj = '', historico, onExportarPdf
             type="button"
             variant="outline"
             className="w-full"
-            disabled={baixando}
+            disabled={baixando || !sicafEnabled}
             onClick={() => void onBaixarSicaf()}
           >
             {baixando ? 'Baixando documentos…' : 'Baixar documentos do SICAF (PDF)'}
           </Button>
+
+          {!sicafEnabled && (
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              O download exige o SICAF ativado (Comprasnet) e login em{' '}
+              <a
+                href="https://www.comprasnet.gov.br"
+                target="_blank"
+                rel="noreferrer"
+                className="underline"
+              >
+                comprasnet.gov.br
+              </a>
+              .{' '}
+              {onAbrirOpcoes && (
+                <button
+                  type="button"
+                  onClick={onAbrirOpcoes}
+                  className="underline hover:text-slate-700 dark:hover:text-slate-200"
+                >
+                  Ativar nas opções
+                </button>
+              )}
+            </p>
+          )}
 
           {downloadMsg && (
             <p

@@ -128,6 +128,18 @@ describe('PopupApp', () => {
     expect(onExportarPdf.mock.calls[0]?.[0]?.cnpjConsultado).toBe('00000000000191');
   });
 
+  test('bloqueia o download do SICAF e orienta ativar quando desabilitado', async () => {
+    const { api } = messenger();
+    const onAbrirOpcoes = vi.fn();
+    render(<PopupApp messenger={api} sicafEnabled={false} onAbrirOpcoes={onAbrirOpcoes} />);
+    fireEvent.change(screen.getByLabelText(/CNPJ/i), { target: { value: '00000000000191' } });
+    fireEvent.click(screen.getByRole('button', { name: /consultar/i }));
+    const botao = await screen.findByRole('button', { name: /baixar documentos do sicaf/i });
+    expect(botao).toBeDisabled();
+    fireEvent.click(screen.getByRole('button', { name: /ativar nas opções/i }));
+    expect(onAbrirOpcoes).toHaveBeenCalledOnce();
+  });
+
   test('renders a backend error message', async () => {
     const { api } = messenger({ ok: false, error: 'Falha na consulta.' });
     render(<PopupApp messenger={api} />);

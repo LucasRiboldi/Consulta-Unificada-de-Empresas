@@ -1,6 +1,6 @@
 {
   "name": "licitcheck",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Consulta unificada de empresas por CNPJ para processos licitatórios — extensão Chrome MV3, 100% local.",
   "type": "module",
   "license": "MIT",
